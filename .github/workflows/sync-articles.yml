@@ -1,0 +1,41 @@
+name: Sync Medium articles
+
+# Daily pull of the owner's Medium publication RSS feed into the site's
+# embedded article catalog. Read-only feed in; only new entries are prepended.
+# The owner's own Medium is the sole source — nothing external can inject content.
+
+on:
+  schedule:
+    - cron: "0 9 * * *" # daily ~09:00 UTC
+  workflow_dispatch: # manual run from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Run article sync
+        id: sync
+        run: |
+          python3 .github/scripts/sync-articles.py | tee sync.log
+          if git status --porcelain index.html | grep -q .; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            NEWCOUNT=$(grep -m1 -oE '^[0-9]+ new article' sync.log | grep -oE '^[0-9]+')
+            echo "newcount=${NEWCOUNT:-0}" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push
+        if: steps.sync.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Auto-sync new Medium articles (${{ steps.sync.outputs.newcount }} new)"
+          git push
