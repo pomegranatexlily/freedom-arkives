@@ -1,0 +1,16 @@
+{
+  "name": "Freedom Arkives",
+  "short_name": "Arkives",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#092013",
+  "theme_color": "#092013",
+  "icons": [
+    {
+      "src": "./favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+}
