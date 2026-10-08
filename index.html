@@ -226,6 +226,7 @@
     .article-card { display: flex; flex-direction: column; border-top: 2px solid var(--strong-line); text-decoration: none; min-width: 0; }
     .article-thumb { aspect-ratio: 16 / 9; overflow: hidden; background: #eadfce; border-bottom: 1px solid var(--line); }
     .article-thumb svg { display: block; width: 100%; height: 100%; }
+    .article-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
     .article-thumb .thumb-paper { fill: #eadfce; }
     .article-thumb .thumb-ink { fill: #19201b; }
     .article-thumb .thumb-copper { fill: #9b4c30; }
@@ -1909,7 +1910,17 @@
           var card = make("a", "article-card");
           card.href = article.url;
           card.setAttribute("aria-label", "Read " + article.title + " on Medium");
-          var thumb = makeArticleThumbnail(article);
+          var thumb;
+          if (article.thumbnail) {
+            thumb = make("div", "article-thumb");
+            var thumbImg = document.createElement("img");
+            thumbImg.src = article.thumbnail;
+            thumbImg.alt = "Thumbnail for " + article.title;
+            thumbImg.loading = "lazy";
+            thumb.appendChild(thumbImg);
+          } else {
+            thumb = makeArticleThumbnail(article);
+          }
           var body = make("div", "article-body");
           body.appendChild(make("h3", "", article.title));
           body.appendChild(make("p", "", article.excerpt));
