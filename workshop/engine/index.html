@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Workavism Publishing Engine v0.1</title>
+<style>
+:root{
+  --bg:#141210; --card:#1e1b16; --card2:#26211a; --ink:#f0e9da; --dim:#a89e88;
+  --amber:#d9a441; --amber-d:#8a6420; --green:#7fb069; --red:#d1604f; --blue:#6aa5d8;
+  --line:#383226; --radius:12px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,system-ui,"Segoe UI",Roboto,sans-serif; font-size:16px; line-height:1.45; padding-bottom:calc(76px + env(safe-area-inset-bottom));}
+header.top{position:sticky; top:0; z-index:20; background:rgba(20,18,16,.96); backdrop-filter:blur(6px); border-bottom:1px solid var(--line); padding:12px 16px;}
+header.top h1{margin:0; font-size:17px; letter-spacing:.4px}
+header.top h1 .tm{color:var(--amber); font-size:11px; vertical-align:super}
+header.top p{margin:2px 0 0; font-size:12px; color:var(--dim)}
+main{max-width:640px; margin:0 auto; padding:12px 12px 24px}
+.screen{display:none}
+.screen.active{display:block; animation:fade .18s ease}
+@keyframes fade{from{opacity:.4}to{opacity:1}}
+.card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px; margin-bottom:12px}
+.card h2{margin:0 0 8px; font-size:16px}
+.card h3{margin:12px 0 6px; font-size:14px; color:var(--amber)}
+.hint{font-size:13px; color:var(--dim); margin:0 0 10px}
+.field{margin-bottom:12px}
+.field label{display:block; font-size:13px; color:var(--dim); margin-bottom:5px; font-weight:600}
+.field input[type=text], .field textarea, .field select{width:100%; background:var(--card2); border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:11px 12px; font-size:16px; font-family:inherit}
+.field textarea{min-height:88px; resize:vertical}
+.field input:focus, .field textarea:focus, .field select:focus{outline:none; border-color:var(--amber)}
+.btn{display:block; width:100%; border:none; border-radius:10px; padding:14px; font-size:16px; font-weight:700; cursor:pointer; margin:8px 0; font-family:inherit}
+.btn-p{background:var(--amber); color:#1a1408}
+.btn-p:disabled{background:#4a4132; color:#8d8471; cursor:not-allowed}
+.btn-g{background:var(--card2); color:var(--ink); border:1px solid var(--line)}
+.btn-d{background:transparent; color:var(--red); border:1px solid var(--red)}
+.btn-row{display:flex; gap:8px}
+.btn-row .btn{margin:4px 0}
+nav.tabs{position:fixed; left:0; right:0; bottom:0; z-index:30; background:#1a1712; border-top:1px solid var(--line); display:flex; padding-bottom:env(safe-area-inset-bottom)}
+nav.tabs button{flex:1; background:none; border:none; color:var(--dim); font-size:11px; font-weight:600; padding:10px 2px 9px; cursor:pointer; font-family:inherit; min-height:52px}
+nav.tabs button .ic{display:block; font-size:19px; margin-bottom:2px}
+nav.tabs button.on{color:var(--amber)}
+.badge{display:inline-block; font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; background:var(--card2); border:1px solid var(--line); color:var(--dim); text-transform:uppercase; letter-spacing:.5px}
+.badge.sealed{background:#1d2b1a; border-color:var(--green); color:var(--green)}
+.badge.blocked{background:#2b1d1a; border-color:var(--red); color:var(--red)}
+.chip{display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; margin:2px 4px 2px 0}
+.chip.PRIMARY{background:#1d2b1a; color:var(--green); border:1px solid var(--green)}
+.chip.SCHOLARSHIP{background:#1a2430; color:var(--blue); border:1px solid var(--blue)}
+.chip.INTERPRETATION{background:#2b2416; color:var(--amber); border:1px solid var(--amber)}
+.chip.PROVISIONAL{background:#2b1d1a; color:var(--red); border:1px solid var(--red)}
+.chip.strong{background:#1d2b1a; color:var(--green)}
+.chip.moderate{background:#1a2430; color:var(--blue)}
+.chip.weak{background:#2b2416; color:var(--amber)}
+.gate{display:flex; gap:10px; align-items:flex-start; background:var(--card2); border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px; font-size:14px}
+.gate input{width:22px; height:22px; margin-top:1px; accent-color:var(--amber); flex-shrink:0}
+.gate.ok{border-color:var(--green)}
+.qc{border-radius:8px; padding:10px 12px; margin-bottom:8px; font-size:14px; background:var(--card2); border:1px solid var(--line)}
+.qc.fail{border-color:var(--red)}
+.qc.warn{border-color:var(--amber)}
+.qc.pass{border-color:var(--green)}
+.qc b{display:block; margin-bottom:2px}
+.qc small{color:var(--dim)}
+.banner{background:#2b1d1a; border:1px solid var(--red); color:#f2b8ac; border-radius:10px; padding:10px 14px; margin-bottom:12px; font-size:14px}
+.banner.green{background:#1d2b1a; border-color:var(--green); color:#bfe3b2}
+.src{border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:8px; background:var(--card2)}
+.src .meta{font-size:12px; color:var(--dim); margin-top:4px}
+.src .row{display:flex; gap:6px; margin-top:8px; flex-wrap:wrap}
+.mini{background:var(--card); border:1px solid var(--line); color:var(--ink); border-radius:7px; padding:7px 10px; font-size:13px; cursor:pointer}
+.mini.danger{color:var(--red); border-color:var(--red)}
+details.wm{border:1px solid var(--line); border-radius:8px; margin-bottom:8px; background:var(--card2)}
+details.wm summary{padding:10px 12px; font-size:14px; cursor:pointer; list-style:none}
+details.wm summary::-webkit-details-marker{display:none}
+details.wm .body{padding:0 12px 12px; font-size:13px; color:var(--dim)}
+details.wm .body b{color:var(--ink)}
+pre.out{background:#0e0c0a; border:1px solid var(--line); border-radius:8px; padding:12px; font-size:12px; overflow:auto; max-height:320px; white-space:pre-wrap; word-break:break-word}
+.stagebar{display:flex; gap:4px; margin:8px 0 12px}
+.stagebar span{flex:1; height:6px; border-radius:3px; background:var(--card2)}
+.stagebar span.done{background:var(--amber)}
+.stagebar span.cur{background:var(--amber-d)}
+.empty{text-align:center; color:var(--dim); padding:36px 16px; font-size:14px}
+.topicrow{display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:8px; cursor:pointer}
+.topicrow .t{flex:1; min-width:0}
+.topicrow .t b{display:block; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.topicrow .t small{color:var(--dim); font-size:12px}
+.kv{font-size:13px; color:var(--dim); margin:4px 0}
+.kv b{color:var(--ink)}
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>WORKAVISM <span class="tm">ENGINE v0.1</span></h1>
+  <p>NURAH PROTOCOLS × G-CAFL-QC · research → argument → sealed brief</p>
+</header>
+<main id="app"></main>
+<nav class="tabs" id="tabs"></nav>
+<script>
+/* ============ WM REGISTRY (locked baseline v2, read-only) ============ */
+const WM=[
+{id:"WM-001",n:"Monumental Repetition",c:"Egypt",g:"moderate",e:"Repetition across durable surfaces outlasts any single proclamation.",t:"Test: does repeated-formula content outperform one-off posts on recall? Measure: unaided recall survey."},
+{id:"WM-002",n:"Dynastic Continuity Curation",c:"Egypt",g:"strong",e:"Curated continuity signals stability; erasure (damnatio) signals rupture.",t:"Test: does an explicit series arc raise returning-reader rate vs standalone posts? Measure: returning readers."},
+{id:"WM-003",n:"Visual Documentation of Power",c:"Assyria",g:"strong",e:"Images travel where text cannot; artifacts survive their makers.",t:"Test: do image-led posts earn more meaningful reads than text-only? Measure: completion rate."},
+{id:"WM-004",n:"Reputation as Deterrence",c:"Assyria",g:"weak",e:"ADAPTATION EXCLUDED: fear-through-violence core not portable. Only credibility-through-demonstrated-rigor may transfer.",t:"Test (residue only): does citing primary sources raise trust scores? Measure: trust survey."},
+{id:"WM-005",n:"Audience-Specific Legitimacy",c:"Persia",g:"moderate",e:"Same authority, different legitimating performance per audience.",t:"Test: does platform-specific framing outperform cross-posted identical copy? Measure: per-platform completion."},
+{id:"WM-006",n:"Infrastructure as Communication System",c:"Persia",g:"moderate",e:"Build the publishing operation to persist beyond individual proclamations.",t:"Test: does a fixed cadence outperform irregular bursts on subscriber growth? Measure: subscriptions."},
+{id:"WM-007",n:"Public Challenge / Morale Speech",c:"Israel/Judah",g:"moderate",e:"A direct public challenge can reframe a stalled debate — single textual instance.",t:"Test: does a direct-address post change reply sentiment vs neutral framing? Measure: reply analysis."},
+{id:"WM-008",n:"Disciplined Silence",c:"Israel/Judah",g:"weak",e:"Not reacting to every provocation preserves authority; single instance, intent interpretive.",t:"Test: does non-response to bait reduce pile-on duration? Measure: thread lifespan."},
+{id:"WM-009",n:"Deliberative Identity Rhetoric",c:"Greece",g:"moderate",e:"Structured argument that builds shared identity before making the ask.",t:"Test: does identity-first framing raise completion vs argument-first? Measure: completion rate."},
+{id:"WM-010",n:"Segmented Legitimation",c:"Macedonia",g:"moderate",e:"Audience-specific entry points, same central message. Failure mode: audiences comparing notes.",t:"Test: do segmented hooks outperform one generic hook? Measure: click-through per segment."},
+{id:"WM-011",n:"Distributed Unavoidable Messaging",c:"Rome",g:"moderate",e:"Consistent identity across every surface; publish your account before opponents publish theirs.",t:"Test: does preemptive framing reduce hostile reframing in replies? Measure: reply sentiment."},
+{id:"WM-012",n:"Channel Control + Diplomatic Intelligence",c:"Byzantium",g:"moderate",e:"Control venue and timing; treat every engagement as intelligence-gathering.",t:"Test: does owned-channel-first publishing outperform rented-channel-first on returning readers?"},
+{id:"WM-013",n:"Intelligence Before Commitment",c:"China",g:"provisional",e:"Deception half EXCLUDED. Portable: research the terrain before publishing a word.",t:"Test: does pre-publication audience research raise relevance scores? Measure: relevance survey."},
+{id:"WM-014",n:"Rapid Relay + Decentralized Execution",c:"Mongols",g:"moderate",e:"Coercive surrender-calculus EXCLUDED. Portable: rapid internal relay, delegated execution.",t:"Test: does a relay workflow (draft→review→publish SLAs) raise output cadence? Measure: posts/week."},
+{id:"WM-015",n:"Serial Signed Communiqué",c:"Napoleonic France",g:"moderate",e:"A named personal channel carries more trust than an institutional one; credibility is spendable.",t:"Test: does signed authorship outperform brand-only voice on trust? Measure: trust survey."},
+{id:"WM-016",n:"Credibility Laundering via Borrowed Trust",c:"WWI",g:"moderate",e:"Secrecy EXCLUDED. Portable only with disclosed sources: borrowed authority works while claims verify.",t:"Test: does cited-expert framing outperform uncited claims on shares? Measure: shares + trust."},
+{id:"WM-017",n:"Costly Honesty Premium",c:"WWII / Cold War",g:"moderate",e:"Admitting errors publicly is the trust mechanism — per adversary analysts themselves.",t:"Test: does a public correction raise long-run trust vs silent edit? Measure: trust survey."},
+{id:"WM-018",n:"Value-First Sequencing",c:"WWII (PWE/Delmer)",g:"moderate",e:"Persona-deception EXCLUDED. Portable: earn the audience's time with what they want, then pivot.",t:"Test: does value-first sequencing raise pivot-post completion? This is the trapdoor hypothesis. Measure: completion."},
+{id:"WM-019",n:"Surrogate Home-Service",c:"Cold War",g:"moderate",e:"Concealed sponsorship EXCLUDED (catastrophic failure mode). Portable: speak into closed conversations as a participant.",t:"Test: does native-participant posting outperform broadcast posting in a community? Measure: replies."},
+{id:"WM-020",n:"Narrative Laundering Detection",c:"Cold War",g:"moderate",e:"OFFENSIVE USE EXCLUDED ENTIRELY. Defensive-only: provenance tracing as an immune system.",t:"Test: does provenance-checking reduce amplification of laundered claims? Measure: retraction rate."},
+{id:"WM-021",n:"Domestic Persuasion Immune Response",c:"WWII (OWI)",g:"strong",e:"Build the firewall between internal messaging and external persuasion before scaling.",t:"Test: does disclosed-sponsorship labeling preserve trust vs undisclosed? Measure: trust survey."},
+{id:"WM-022",n:"Reach ≠ Effect Measurement Discipline",c:"Meta (all systems)",g:"strong",e:"Reach is measurable, persuasion mostly isn't. No reach metric may be presented as an effect metric.",t:"Governs all tests: every experiment must name its behavioral metric up front."}
+];
+const ETHICS=[
+ "No deception or manipulation as a method — studied, never deployed.",
+ "No military-coercion mechanisms adapted to civilian publishing.",
+ "I will seek out counterevidence, not just supporting sources.",
+ "No claim will exceed what its cited source actually establishes.",
+ "Private motives will not be asserted without evidence."
+];
+const STAGES=["discovery","verification","dialectics","narrative","brief"];
+const STAGE_LABEL={discovery:"Discovery",verification:"Verification",dialectics:"Dialectics",narrative:"Narrative",brief:"Brief",sealed:"Sealed"};
+const TABS=[["queue","📥","Queue"],["discovery","🔎","Discover"],["sources","📚","Sources"],["dialectics","⚖️","Dialectic"],["narrative","✍️","Narrative"],["brief","📋","Brief"],["seal","🔏","Seal"]];
+
+/* ============ STORE ============ */
+const LSKEY="workavism_engine_v01";
+let S={topics:[],cur:null,screen:"queue"};
+function save(){try{localStorage.setItem(LSKEY,JSON.stringify({topics:S.topics,cur:S.cur}));}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(LSKEY));if(d){S.topics=d.topics||[];S.cur=d.cur||null;}}catch(e){}}
+function uid(){return "t"+Date.now().toString(36)+Math.floor(Math.random()*999);}
+function cur(){return S.topics.find(t=>t.id===S.cur)||null;}
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function blankTopic(title){return{id:uid(),title:title||"Untitled topic",createdAt:Date.now(),updatedAt:Date.now(),stage:"discovery",
+ discovery:{question:"",goal:"",context:"",audience:"",format:"",limits:"",ethics:[false,false,false,false,false]},
+ sources:[],dialectics:{thesis:"",antithesis:"",steelman:false,synthesis:"",resolution:"resolved"},
+ narrative:{hook:"",context:"",tension:"",explanation:"",pivot:"",socratic:"",mechanisms:[]},
+ brief:{G:"",C:"",A:"",F:"",L:""},seal:null};}
+function touch(){const t=cur();if(t){t.updatedAt=Date.now();if(t.seal){t.seal=null;const b=document.getElementById("sealbanner");if(b)b.style.display="block";}save();}}
+
+/* ============ SHELL ============ */
+function renderTabs(){document.getElementById("tabs").innerHTML=TABS.map(([k,ic,lb])=>
+ `<button class="${S.screen===k?"on":""}" onclick="go('${k}')"><span class="ic">${ic}</span>${lb}</button>`).join("");}
+function go(k){S.screen=k;render();}
+function stageIdx(t){return t.seal?5:STAGES.indexOf(t.stage);}
+function stagebar(t){const i=stageIdx(t);return `<div class="stagebar">${STAGES.map((s,j)=>`<span class="${j<i?"done":j===i?"cur":""}"></span>`).join("")}</div>`;}
+function render(){renderTabs();const app=document.getElementById("app");
+ const R={queue:vQueue,discovery:vDiscovery,sources:vSources,dialectics:vDialectics,narrative:vNarrative,brief:vBrief,seal:vSeal};
+ app.innerHTML=(R[S.screen]||vQueue)();}
+function needTopic(){const t=cur();if(!t){return `<div class="empty">No topic selected.<br><br><button class="btn btn-p" onclick="go('queue')">Open the queue</button></div>`;}return null;}
+/* ============ QUEUE ============ */
+function vQueue(){const ts=[...S.topics].sort((a,b)=>b.updatedAt-a.updatedAt);
+ let h=`<div class="card"><h2>Topic queue</h2><p class="hint">One brief per topic travels Discovery → Verification → Dialectics → Narrative → sealed Brief.</p>
+ <div class="field"><input type="text" id="newtitle" placeholder="New topic — e.g. December 25th"></div>
+ <button class="btn btn-p" onclick="mkTopic()">+ New topic</button></div>`;
+ if(!ts.length)h+=`<div class="empty">No topics yet.<br>Create the first one above.</div>`;
+ h+=ts.map(t=>`<div class="topicrow" onclick="openTopic('${t.id}')">
+   <div class="t"><b>${esc(t.title)}</b><small>${new Date(t.updatedAt).toLocaleDateString()} · ${STAGE_LABEL[t.seal?"sealed":t.stage]}</small></div>
+   <span class="badge ${t.seal?"sealed":""}">${t.seal?"🔏 sealed":STAGE_LABEL[t.stage]}</span></div>`).join("");
+ return h;}
+function mkTopic(){const v=(document.getElementById("newtitle").value||"").trim();const t=blankTopic(v||undefined);S.topics.push(t);S.cur=t.id;save();go("discovery");}
+function openTopic(id){S.cur=id;const t=cur();go(t.seal?"seal":"discovery");}
+function delTopic(){if(!confirm("Delete this topic and all its work?"))return;S.topics=S.topics.filter(t=>t.id!==S.cur);S.cur=null;save();go("queue");}
+
+/* ============ DISCOVERY ============ */
+function vDiscovery(){const n=needTopic();if(n)return n;const t=cur(),d=t.discovery;
+ const gatesOk=d.ethics.every(Boolean);
+ return `${stagebar(t)}<div id="sealbanner" class="banner" style="display:none">Seal cleared by an edit — review and re-seal before handoff.</div>
+ <div class="card"><h2>🔎 Discovery <span class="badge">${STAGE_LABEL[t.stage]}</span></h2>
+ <p class="hint">${esc(t.title)} — capture the question and the brief skeleton. The brief is created here and travels through every stage.</p>
+ <div class="field"><label>Topic title</label><input type="text" value="${esc(t.title)}" oninput="setT('title',this.value)"></div>
+ <div class="field"><label>Question, contradiction, or claim</label><textarea oninput="setD('question',this.value)" placeholder="What is being investigated?">${esc(d.question)}</textarea></div>
+ <h3>G-CAFL-QC brief skeleton</h3>
+ ${["goal","context","audience","format","limits"].map(k=>`<div class="field"><label>${k[0].toUpperCase()+k.slice(1)}</label><textarea style="min-height:56px" oninput="setD('${k}',this.value)" placeholder="">${esc(d[k])}</textarea></div>`).join("")}
+ <h3>Ethical counter-conditioning — blocking gate</h3>
+ <p class="hint">All five must be checked before Verification unlocks. These are the Nurah ethical limits, enforced as data.</p>
+ ${ETHICS.map((e,i)=>`<label class="gate ${d.ethics[i]?"ok":""}"><input type="checkbox" ${d.ethics[i]?"checked":""} onchange="setE(${i},this.checked)"><span>${e}</span></label>`).join("")}
+ <button class="btn ${gatesOk?"btn-p":"btn-p"}" ${gatesOk?"":"disabled"} onclick="adv('verification')">Continue to Verification →</button>
+ ${gatesOk?"":'<p class="hint">Complete the ethics checklist to unlock Verification.</p>'}
+ <button class="btn btn-d" onclick="delTopic()">Delete topic</button></div>`;}
+function setT(k,v){const t=cur();t[k]=v;touch();save();}
+function setD(k,v){const t=cur();t.discovery[k]=v;touch();save();}
+function setE(i,v){const t=cur();t.discovery.ethics[i]=v;touch();save();render();}
+function adv(stage){const t=cur();t.stage=stage;touch();save();go(stage==="verification"?"sources":stage);}
+
+/* ============ SOURCES ============ */
+function vSources(){const n=needTopic();if(n)return n;const t=cur();
+ const prim=t.sources.filter(s=>s.type==="PRIMARY"||s.type==="SCHOLARSHIP").length;
+ const ce=t.sources.filter(s=>s.counter).length;
+ const ok=prim>=1&&ce>=1;
+ let h=`${stagebar(t)}<div id="sealbanner" class="banner" style="display:none">Seal cleared by an edit — review and re-seal before handoff.</div>
+ <div class="card"><h2>📚 Source ledger <span class="badge">${STAGE_LABEL[t.stage]}</span></h2>
+ <p class="hint">Verification: primary sources, scholarship, counterevidence, uncertainty notes. No claim may exceed what its source establishes.</p>
+ <div class="qc ${prim>=1?"pass":"fail"}"><b>${prim>=1?"✓":"✗"} Scholarly base</b><small>≥1 PRIMARY or SCHOLARSHIP source required (have ${prim})</small></div>
+ <div class="qc ${ce>=1?"pass":"fail"}"><b>${ce>=1?"✓":"✗"} Counterevidence</b><small>≥1 source flagged as counterevidence required (have ${ce})</small></div>`;
+ h+=t.sources.map(s=>`<div class="src"><div><b>${esc(s.cite||"(untitled)")}</b></div>
+   <div><span class="chip ${s.type}">${s.type}</span>${s.counter?'<span class="chip PROVISIONAL">COUNTEREVIDENCE</span>':""}${s.prov?'<span class="chip PROVISIONAL">PROVISIONAL</span>':""}</div>
+   ${s.url?`<div class="meta">🔗 ${esc(s.url)}</div>`:""}${s.note?`<div class="meta">📝 ${esc(s.note)}</div>`:""}
+   <div class="row"><button class="mini" onclick="togS('${s.id}','counter')">${s.counter?"Unflag counter":"Flag counter"}</button>
+   <button class="mini" onclick="togS('${s.id}','prov')">${s.prov?"Unflag prov.":"Flag provisional"}</button>
+   <button class="mini danger" onclick="delS('${s.id}')">Remove</button></div></div>`).join("");
+ h+=`<h3>Add source</h3>
+ <div class="field"><label>Citation</label><input type="text" id="sc" placeholder="Author, Title (year)"></div>
+ <div class="field"><label>URL (optional)</label><input type="text" id="su" placeholder="https://…"></div>
+ <div class="field"><label>Type</label><select id="st"><option>PRIMARY</option><option>SCHOLARSHIP</option><option>INTERPRETATION</option></select></div>
+ <div class="field"><label>Uncertainty / limitation note</label><input type="text" id="sn" placeholder="What this source does NOT establish"></div>
+ <button class="btn btn-g" onclick="addS()">+ Add source</button>
+ <button class="btn ${ok?"btn-p":"btn-p"}" ${ok?"":"disabled"} onclick="adv('dialectics')">Continue to Dialectics →</button>
+ ${ok?"":'<p class="hint">Add scholarly base and counterevidence to unlock Dialectics.</p>'}</div>`;
+ return h;}
+function addS(){const t=cur();const c=document.getElementById("sc").value.trim();if(!c){alert("Citation required.");return;}
+ t.sources.push({id:uid(),cite:c,url:document.getElementById("su").value.trim(),type:document.getElementById("st").value,note:document.getElementById("sn").value.trim(),counter:false,prov:false});
+ touch();save();render();}
+function delS(id){const t=cur();t.sources=t.sources.filter(s=>s.id!==id);touch();save();render();}
+function togS(id,k){const t=cur();const s=t.sources.find(x=>x.id===id);s[k]=!s[k];touch();save();render();}
+/* ============ DIALECTICS ============ */
+function vDialectics(){const n=needTopic();if(n)return n;const t=cur(),d=t.dialectics;
+ const ok=d.thesis.trim()&&d.antithesis.trim()&&d.steelman&&(d.resolution!=="resolved"||d.synthesis.trim());
+ return `${stagebar(t)}<div id="sealbanner" class="banner" style="display:none">Seal cleared by an edit — review and re-seal before handoff.</div>
+ <div class="card"><h2>⚖️ Dialectics <span class="badge">${STAGE_LABEL[t.stage]}</span></h2>
+ <p class="hint">Build the thesis, the strongest antithesis, and the warranted synthesis. Do not force a conclusion — <i>unresolved</i> and <i>insufficient evidence</i> are valid terminal states.</p>
+ <div class="field"><label>Thesis — the claim under investigation</label><textarea oninput="setX('thesis',this.value)">${esc(d.thesis)}</textarea></div>
+ <div class="field"><label>Antithesis — the strongest opposing argument, stated fairly</label><textarea oninput="setX('antithesis',this.value)">${esc(d.antithesis)}</textarea></div>
+ <label class="gate ${d.steelman?"ok":""}"><input type="checkbox" ${d.steelman?"checked":""} onchange="setX('steelman',this.checked)"><span><b>Steelman check:</b> the antithesis above is the strongest version of the opposing case, not a strawman. (Blocking gate.)</span></label>
+ <div class="field"><label>Resolution</label><select onchange="setX('resolution',this.value)">
+   ${["resolved","unresolved","insufficient_evidence"].map(r=>`<option value="${r}" ${d.resolution===r?"selected":""}>${r.replace("_"," ")}</option>`).join("")}</select></div>
+ <div class="field"><label>Synthesis — warranted by the evidence (required only if resolved)</label><textarea oninput="setX('synthesis',this.value)">${esc(d.synthesis)}</textarea></div>
+ ${t.sources.filter(s=>s.counter).map(s=>`<div class="qc warn"><b>Counterevidence on record</b><small>${esc(s.cite)} — surface it in the synthesis, don't bury it.</small></div>`).join("")}
+ <button class="btn btn-p" id="advbtn" ${ok?"":"disabled"} onclick="adv('narrative')">Continue to Narrative →</button>
+ ${ok?"":'<p class="hint">Thesis, fair antithesis, steelman check, and synthesis (or a terminal state) unlock Narrative.</p>'}</div>`;}
+function dxOk(t){const d=t.dialectics;return !!(d.thesis.trim()&&d.antithesis.trim()&&d.steelman&&(d.resolution!=="resolved"||d.synthesis.trim()));}
+function setX(k,v){const t=cur();t.dialectics[k]=v;touch();save();
+ const b=document.getElementById("advbtn");if(b)b.disabled=!dxOk(t);
+ if(k==="steelman"||k==="resolution")render();}
+
+/* ============ NARRATIVE ============ */
+function vNarrative(){const n=needTopic();if(n)return n;const t=cur(),v=t.narrative;
+ const words=v.hook.trim()?v.hook.trim().split(/\s+/).length:0;
+ return `${stagebar(t)}<div id="sealbanner" class="banner" style="display:none">Seal cleared by an edit — review and re-seal before handoff.</div>
+ <div class="card"><h2>✍️ Narrative — trapdoor structure</h2>
+ <p class="hint">Hook → context → tension → explanation → pivot → Socratic close. Lead with the debate people already fight about; pivot into the framework.</p>
+ <div class="field"><label>Hook — mass-appeal entry (≤15 words: ${words}/15) ${words>15?'<span class="chip PROVISIONAL">OVER</span>':""}</label>
+ <textarea style="min-height:56px" oninput="setN('hook',this.value)" placeholder="The fight people are already having">${esc(v.hook)}</textarea></div>
+ <div class="field"><label>Context</label><textarea oninput="setN('context',this.value)">${esc(v.context)}</textarea></div>
+ <div class="field"><label>Tension</label><textarea oninput="setN('tension',this.value)">${esc(v.tension)}</textarea></div>
+ <div class="field"><label>Explanation — evidence-based</label><textarea oninput="setN('explanation',this.value)">${esc(v.explanation)}</textarea></div>
+ <div class="field"><label>Trapdoor pivot — into the covenant framework</label><textarea oninput="setN('pivot',this.value)" placeholder="The deeper pattern this reveals">${esc(v.pivot)}</textarea></div>
+ <div class="field"><label>Socratic closing question (required — blocking at seal)</label><textarea style="min-height:56px" oninput="setN('socratic',this.value)">${esc(v.socratic)}</textarea></div>
+ <h3>Mechanism links — read-only registry refs</h3>
+ <p class="hint">Tap to attach. Ethical limits from the locked baseline travel with each reference.</p>
+ ${WM.map(m=>`<details class="wm"><summary><input type="checkbox" style="accent-color:var(--amber)" ${v.mechanisms.includes(m.id)?"checked":""} onclick="event.stopPropagation();togM('${m.id}')"> <b>${m.id}</b> · ${esc(m.n)} <span class="chip ${m.g}">${m.g}</span></summary><div class="body"><b>${esc(m.c)}</b><br>${esc(m.e)}<br><br><b>Test:</b> ${esc(m.t)}</div></details>`).join("")}
+ <button class="btn btn-p" onclick="adv('brief')">Continue to Brief & QC →</button></div>`;}
+function setN(k,v){const t=cur();t.narrative[k]=v;touch();save();}
+function togM(id){const t=cur();const a=t.narrative.mechanisms;const i=a.indexOf(id);i>=0?a.splice(i,1):a.push(id);touch();save();}
+/* ============ BRIEF + QC ============ */
+function qc(t){const b=[],w=[];
+ const d=t.discovery,v=t.narrative,x=t.dialectics;
+ if(!d.goal.trim()||!d.context.trim()||!d.audience.trim()||!d.format.trim()||!d.limits.trim())b.push(["Brief incomplete","Every G/C/A/F/L row must be filled — empty rows are seal gates."]);
+ if(!t.sources.some(s=>s.type==="PRIMARY"||s.type==="SCHOLARSHIP"))b.push(["No scholarly base","At least one PRIMARY or SCHOLARSHIP source is required."]);
+ if(!t.sources.some(s=>s.counter))b.push(["No counterevidence","At least one source must be flagged as counterevidence."]);
+ if(!d.ethics.every(Boolean))b.push(["Ethics checklist incomplete","All five ethical counter-conditioning checks required."]);
+ if(!x.steelman)b.push(["Steelman unchecked","The antithesis must be confirmed as the strongest opposing case."]);
+ if(x.resolution==="resolved"&&!x.synthesis.trim())b.push(["Synthesis missing","A resolved dialectic requires a warranted synthesis."]);
+ if(!v.socratic.trim())b.push(["Socratic close missing","The narrative requires a closing question."]);
+ const hw=v.hook.trim()?v.hook.trim().split(/\s+/).length:0;
+ if(v.hook.trim()&&hw>15)w.push(["Hook over 15 words",`Currently ${hw} words. Trapdoor hooks stay ≤15.`]);
+ const vague=["very","really","things","stuff","many people","experts say","it is believed"];
+ const hay=(d.question+" "+v.explanation+" "+x.synthesis).toLowerCase();
+ const found=vague.filter(p=>hay.includes(p));
+ if(found.length)w.push(["Vague language detected",`Found: ${found.join(", ")}. Name the thing.`]);
+ if(t.sources.some(s=>s.prov))w.push(["Provisional sources on record","Provisional flags must travel with any published claim."]);
+ return{b,w};}
+function qcHtml(t){const{b,w}=qc(t);
+ return `<h3>Blocking QC — ${b.length?b.length+" failing":"all clear"}</h3>
+ ${b.length?b.map(([h,s])=>`<div class="qc fail"><b>✗ ${h}</b><small>${s}</small></div>`).join(""):'<div class="qc pass"><b>✓ All blocking checks pass</b><small>Seal is available.</small></div>'}
+ <h3>Advisory QC — ${w.length}</h3>
+ ${w.map(([h,s])=>`<div class="qc warn"><b>⚠ ${h}</b><small>${s}</small></div>`).join("")||'<div class="qc pass"><b>✓ No advisories</b></div>'}`;}
+function vBrief(){const n=needTopic();if(n)return n;const t=cur(),{b}=qc(t);
+ const rows=[["G","Goal"],["C","Context"],["A","Audience"],["F","Format"],["L","Limits"]];
+ return `${stagebar(t)}<div id="sealbanner" class="banner" style="display:none">Seal cleared by an edit — review and re-seal before handoff.</div>
+ <div class="card"><h2>📋 Brief & Quality Control</h2>
+ <p class="hint">The brief is the document. Review each row, then clear QC before sealing.</p>
+ ${rows.map(([k,lb])=>`<div class="field"><label>${lb}</label><textarea style="min-height:56px" oninput="setB('${k}',this.value)">${esc(t.brief[k])}</textarea></div>`).join("")}
+ <div id="qcwrap">${qcHtml(t)}</div>
+ <button class="btn btn-p" id="advbtn" ${b.length?"disabled":""} onclick="go('seal')">Continue to Seal →</button></div>`;}
+function setB(k,v){const t=cur();t.brief[k]=v;touch();save();
+ const qw=document.getElementById("qcwrap");if(qw)qw.innerHTML=qcHtml(t);
+ const btn=document.getElementById("advbtn");if(btn)btn.disabled=qc(t).b.length>0;}
+
+/* ============ SEAL + HANDOFF ============ */
+function vSeal(){const n=needTopic();if(n)return n;const t=cur(),{b}=qc(t);
+ const sealed=!!t.seal;
+ let h=`${stagebar(t)}`;
+ h+=sealed?`<div class="banner green">🔏 Sealed ${new Date(t.seal.sealedAt).toLocaleString()}. This snapshot is frozen — any edit clears the seal.</div>`
+  :`<div class="card"><h2>🔏 Seal the brief</h2><p class="hint">The human Seal action freezes this topic's research, dialectic, narrative, and brief into an immutable snapshot for handoff. Any later edit clears it.</p>
+  ${b.length?`<div class="qc fail"><b>✗ ${b.length} blocking issue(s) remain</b><small>Clear them in the Brief tab first.</small></div>
+  <button class="btn btn-p" disabled>Seal brief</button>`
+  :`<button class="btn btn-p" onclick="doSeal()">🔏 Seal brief</button>`}</div>`;
+ if(sealed){h+=`<div class="card"><h2>Snapshot</h2>
+  <div class="kv"><b>Title:</b> ${esc(t.title)}</div>
+  <div class="kv"><b>Hook:</b> ${esc(t.narrative.hook)}</div>
+  <div class="kv"><b>Socratic close:</b> ${esc(t.narrative.socratic)}</div>
+  <div class="kv"><b>Sources:</b> ${t.sources.length} (${t.sources.filter(s=>s.counter).length} counterevidence)</div>
+  <div class="kv"><b>Mechanisms:</b> ${t.narrative.mechanisms.join(", ")||"none"}</div>
+  <h3>Renderers</h3><pre class="out" id="out">Tap a renderer below.</pre>
+  <div class="btn-row"><button class="btn btn-g" onclick="rend('md')">Markdown</button><button class="btn btn-g" onclick="rend('json')">JSON</button></div>
+  <button class="btn btn-g" onclick="copyOut()">📋 Copy output</button>
+  <h3>Handoff adapters</h3><p class="hint">Copy the brief, then open the model. Paste on arrival.</p>
+  <div class="btn-row"><button class="btn btn-g" onclick="hand('https://chat.openai.com/')">ChatGPT</button><button class="btn btn-g" onclick="hand('https://claude.ai/')">Claude</button></div>
+  <div class="btn-row"><button class="btn btn-g" onclick="hand('https://www.perplexity.ai/')">Perplexity</button><button class="btn btn-g" onclick="hand('https://grok.com/')">Grok</button></div>
+  <button class="btn btn-g" onclick="shareOut()">↗ Share snapshot</button></div>`;}
+ return h;}
+function doSeal(){const t=cur();const snap=JSON.parse(JSON.stringify(t));delete snap.seal;t.seal={sealedAt:Date.now(),snapshot:snap};t.stage="sealed";save();render();}
+function md(t){const s=t.seal?t.seal.snapshot:t;const L=[];
+ L.push("# "+s.title,"","## Question",s.discovery.question,"","## Brief",
+ `**Goal:** ${s.brief.G}`,`**Context:** ${s.brief.C}`,`**Audience:** ${s.brief.A}`,`**Format:** ${s.brief.F}`,`**Limits:** ${s.brief.L}`,"",
+ "## Dialectic ("+s.dialectics.resolution.replace("_"," ")+")","**Thesis:** "+s.dialectics.thesis,"","**Antithesis:** "+s.dialectics.antithesis,"","**Synthesis:** "+(s.dialectics.synthesis||"_"+s.dialectics.resolution.replace("_"," ")+"_"),"",
+ "## Narrative","**Hook:** "+s.narrative.hook,"","**Context:** "+s.narrative.context,"","**Tension:** "+s.narrative.tension,"","**Explanation:** "+s.narrative.explanation,"","**Pivot:** "+s.narrative.pivot,"","**Socratic close:** "+s.narrative.socratic,"",
+ "## Sources",...s.sources.map(x=>`- [${x.type}]${x.counter?" [COUNTEREVIDENCE]":""}${x.prov?" [PROVISIONAL]":""} ${x.cite}${x.url?" — "+x.url:""}${x.note?" ("+x.note+")":""}`),"",
+ "## Mechanism links",s.narrative.mechanisms.join(", ")||"none","",
+ s.seal?`_Sealed ${new Date(s.seal.sealedAt).toLocaleString()} · Workavism Engine v0.1_`:"_Unsealed draft_");
+ return L.join("\n");}
+function rend(k){const t=cur();const el=document.getElementById("out");
+ el.textContent=k==="md"?md(t):JSON.stringify(t.seal?t.seal.snapshot:t,null,2);}
+function copyOut(){const el=document.getElementById("out");const txt=el.textContent;
+ (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>alert("Copied.")).catch(()=>{const r=document.createRange();r.selectNode(el);getSelection().removeAllRanges();getSelection().addRange(r);document.execCommand("copy");alert("Copied.");});}
+function hand(url){rend('md');copyOutSilent();window.open(url,"_blank");}
+function copyOutSilent(){const el=document.getElementById("out");if(navigator.clipboard&&el)navigator.clipboard.writeText(el.textContent).catch(()=>{});}
+function shareOut(){const t=cur();const txt=md(t);
+ if(navigator.share)navigator.share({title:t.title,text:txt}).catch(()=>{});
+ else copyOut();}
+
+/* ============ INIT ============ */
+load();render();
+</script>
+</body>
+</html>
