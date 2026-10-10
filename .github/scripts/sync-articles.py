@@ -125,6 +125,34 @@ def format_entry(e):
     return "\n".join(lines) + "\n"
 
 
+BOOK_COUNT_DISPLAY = "14"  # author's published total (not the on-page catalog length)
+
+
+def refresh_copy(page, article_count):
+    """Keep hardcoded marketing copy honest on every sync run.
+
+    - Article-count placeholder -> live catalog count (the page JS overwrites
+      this on load anyway; this keeps the static HTML truthful for no-JS).
+    - Book-count placeholder + library heading -> author's published total.
+    - JS book counter -> author's published total (was the on-page catalog length).
+    All substitutions are idempotent: re-running with no changes is a no-op.
+    """
+    subs = [
+        (r'(<div class="result-count" id="articleCount" aria-live="polite">)\d+ articles</div>',
+         rf"\g<1>{article_count} articles</div>"),
+        (r'(<div class="result-count" id="bookCount" aria-live="polite">)\d+ books</div>',
+         rf"\g<1>{BOOK_COUNT_DISPLAY} books</div>"),
+        (r"Eight books\. One living catalog\.",
+         "Fourteen books. One living catalog."),
+        (r'bookCount\.textContent = books\.length \+ \(books\.length === 1 \? " book" : " books"\);',
+         f'bookCount.textContent = "{BOOK_COUNT_DISPLAY} books";'),
+    ]
+    for pat, rep in subs:
+        page, n = re.subn(pat, rep, page)
+        print(f"  copy refresh: {n} replacement(s) for /{pat[:48]}.../")
+    return page
+
+
 def main():
     with open(INDEX_PATH, encoding="utf-8") as f:
         page = f.read()
@@ -153,33 +181,40 @@ def main():
         existing.add(entry["url"])
         fresh.append(entry)
 
+    new_page = page
     if not fresh:
         print("0 new articles — catalog already up to date.")
+    else:
+        fresh.sort(key=lambda e: e["date"], reverse=True)
+        block = "".join(format_entry(e) for e in fresh)
+
+        anchor = '    "articles": [\n'
+        pos = m.group(2).find(anchor)
+        if pos == -1:
+            print("ERROR: articles array anchor not found", file=sys.stderr)
+            return 1
+        insert_at = pos + len(anchor)
+        new_catalog_text = m.group(2)[:insert_at] + block + m.group(2)[insert_at:]
+
+        # Sanity: the result must still parse and must contain all old + new articles.
+        check = json.loads(new_catalog_text)
+        assert len(check["articles"]) == len(articles) + len(fresh), "article count mismatch"
+        assert check["articles"][: len(fresh)] == fresh or True  # order preserved by construction
+
+        new_page = page[: m.start(2)] + new_catalog_text + page[m.end(2):]
+        print(f"{len(fresh)} new article(s) added:")
+        for e in fresh:
+            print(f"  - {e['date']} | {e['title']}")
+
+    total_articles = len(articles) + len(fresh)
+    new_page = refresh_copy(new_page, total_articles)
+
+    if new_page == page:
+        print("No changes to write.")
         return 0
-
-    fresh.sort(key=lambda e: e["date"], reverse=True)
-    block = "".join(format_entry(e) for e in fresh)
-
-    anchor = '    "articles": [\n'
-    pos = m.group(2).find(anchor)
-    if pos == -1:
-        print("ERROR: articles array anchor not found", file=sys.stderr)
-        return 1
-    insert_at = pos + len(anchor)
-    new_catalog_text = m.group(2)[:insert_at] + block + m.group(2)[insert_at:]
-
-    # Sanity: the result must still parse and must contain all old + new articles.
-    check = json.loads(new_catalog_text)
-    assert len(check["articles"]) == len(articles) + len(fresh), "article count mismatch"
-    assert check["articles"][: len(fresh)] == fresh or True  # order preserved by construction
-
-    new_page = page[: m.start(2)] + new_catalog_text + page[m.end(2):]
     with open(INDEX_PATH, "w", encoding="utf-8") as f:
         f.write(new_page)
-
-    print(f"{len(fresh)} new article(s) added:")
-    for e in fresh:
-        print(f"  - {e['date']} | {e['title']}")
+    print("index.html updated.")
     return 0
 
 
