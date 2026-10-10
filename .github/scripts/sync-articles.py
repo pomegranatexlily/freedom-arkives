@@ -146,6 +146,13 @@ def refresh_copy(page, article_count):
          "Fourteen books. One living catalog."),
         (r'bookCount\.textContent = books\.length \+ \(books\.length === 1 \? " book" : " books"\);',
          f'bookCount.textContent = "{BOOK_COUNT_DISPLAY} books";'),
+        # 2026-10-10 user direction: no disclaimers, no builder notes on the live site.
+        (r" It does not claim to represent Zionism, rabbinic Judaism, or Jewish people as a whole\.",
+         ""),
+        (r" Every record below is rendered from the JSON catalog embedded at the end of this page\.",
+         ""),
+        (r"; typographic covers are replaceable assets, ready for final cover files at the same paths\.",
+         ""),
     ]
     for pat, rep in subs:
         page, n = re.subn(pat, rep, page)
