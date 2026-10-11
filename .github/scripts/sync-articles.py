@@ -264,6 +264,112 @@ BROKEN_INHERITANCE_ENTRY = """      {
 
 
 
+THUMBNAIL_FIXES = {
+    "https://freedomarkives.medium.com/stop-just-watching-python-tutorials-run-the-code-9c482f3f884c": "https://cdn-images-1.medium.com/max/768/1*EYhQY8x9RQvzEqQtbP4WMw@2x.jpeg",
+    "https://freedomarkives.medium.com/from-passover-to-easter-from-covenant-to-christian-tradition-7a78f4956127": "https://cdn-images-1.medium.com/max/768/1*UFPMEHkUdFRynuRn1BDlCg@2x.jpeg",
+    "https://freedomarkives.medium.com/participation-is-not-power-b821617434ea": "https://cdn-images-1.medium.com/max/768/1*gc_w7N9sVYQOYR6w0_DzFQ@2x.jpeg",
+    "https://freedomarkives.medium.com/how-to-use-chatgpt-198a5035da97": "https://cdn-images-1.medium.com/max/768/1*FpyWMbmOuMVTV5oE_FU9Fg@2x.jpeg",
+    "https://freedomarkives.medium.com/can-ai-understand-aave-3afa3ef18c4e": "https://cdn-images-1.medium.com/max/768/1*AuEkwDtZBeHDfwj0DfF5ug@2x.jpeg",
+    "https://freedomarkives.medium.com/the-rat-poison-of-progressive-christianity-96d9f919b1c8": "https://cdn-images-1.medium.com/max/768/1*ar2NtsqhwUARfq01rg3qEA@2x.jpeg",
+    "https://freedomarkives.medium.com/trumps-5-000-political-bribe-and-america-s-unpaid-reparations-debt-5ac2c2a7bc2b": "https://cdn-images-1.medium.com/max/768/1*DiOsVxFf6KdBOP8CcHHgRw@2x.jpeg",
+    "https://freedomarkives.medium.com/why-israel-is-at-the-center-of-american-politics-empire-and-prophecy-in-2026-583ca86f3244": "https://cdn-images-1.medium.com/max/768/1*QR27ooztaFOUdJkyjBxdQg@2x.jpeg",
+    "https://freedomarkives.medium.com/when-did-hebrew-israelites-black-hebrew-israelites-start-9396dc7e6453": "https://cdn-images-1.medium.com/max/768/1*_vKTbWtj5_hg0PNHgEYCLA@2x.jpeg",
+    "https://freedomarkives.medium.com/the-cycle-of-demoralization-and-division-3538de8a62a5": "https://cdn-images-1.medium.com/max/768/1*1YdYRpjJOnmagzGndyEfgg@2x.jpeg",
+    "https://freedomarkives.medium.com/christianity-universalism-and-the-antichrist-fd1cff31f8dc": "https://cdn-images-1.medium.com/max/768/1*OBpio350CS1hhxdcNhu8SQ@2x.jpeg",
+    "https://freedomarkives.medium.com/power-courts-equity-and-legitimacy-8b4c128a292d": "https://cdn-images-1.medium.com/max/768/1*1CXh5mspe5mcgHGXZMsWkQ@2x.jpeg",
+    "https://freedomarkives.medium.com/romes-saturday-is-not-yahawah-s-shabbat-a798bc480a61": "https://cdn-images-1.medium.com/max/768/1*mhk9p2ASE1-Acnwx6_wC6w@2x.jpeg",
+    "https://freedomarkives.medium.com/do-black-people-have-the-right-to-hate-white-america-fbde46e06ce3": "https://cdn-images-1.medium.com/max/768/1*bAF6-OwD-NzvoJroBWMuAQ@2x.jpeg",
+    "https://freedomarkives.medium.com/who-is-esau-0cfa44e68f3a": "https://cdn-images-1.medium.com/max/768/1*14bhyjnyTIe4zFEjnbmIzA@2x.jpeg",
+    "https://freedomarkives.medium.com/who-is-yahawshai-why-the-church-lied-about-the-conquering-king-a4de86d1a5d4": "https://cdn-images-1.medium.com/max/768/1*S1bLFM05pYLu2KsD1qDvKQ@2x.jpeg",
+    "https://freedomarkives.medium.com/the-throne-the-covenant-and-the-empire-9b9d38248279": "https://cdn-images-1.medium.com/max/768/1*GwtVDFR1KzijvOH__2S6ew@2x.jpeg",
+    "https://freedomarkives.medium.com/what-gentile-salvation-really-is-f2cd9ed3080d": "https://cdn-images-1.medium.com/max/768/1*2h7w7neM6icEfHM1WT6I1Q@2x.jpeg",
+    "https://freedomarkives.medium.com/are-black-hebrew-israelites-really-crazy-95575827e10b": "https://cdn-images-1.medium.com/max/768/1*NUjt-d7_RGifZPN3nNwyPw@2x.jpeg",
+    "https://freedomarkives.medium.com/deconstructing-christianity-for-real-5ad0b13f91ea": "https://cdn-images-1.medium.com/max/768/1*Il6Y6B5TqjycfVn-LJPgKA@2x.jpeg",
+    "https://freedomarkives.medium.com/who-is-yahawashi-reclaiming-the-hebrew-messiah-behind-jesus-4d51b9a6e24a": "https://cdn-images-1.medium.com/max/768/1*_r4h4Ul68oIF57N8tIeT7g@2x.jpeg",
+    "https://freedomarkives.medium.com/intersectionality-dilutes-the-black-agenda-1b6ecb4655a6": "https://cdn-images-1.medium.com/max/768/1*QOOS1AiAI89Q-leMPRMmjQ@2x.jpeg",
+    "https://freedomarkives.medium.com/both-sides-are-wrong-commandments-covenant-and-the-bastardized-gospel-a9b59fc26bb5": "https://cdn-images-1.medium.com/max/768/1*WnvKAoLGMUV_z9GA6Qs9ig@2x.jpeg",
+    "https://freedomarkives.medium.com/written-in-love-a-response-on-shabath-the-moon-and-captivity-2807521622de": "https://cdn-images-1.medium.com/max/768/1*RI29LKVbVgr4g35_rAR3ug@2x.jpeg",
+    "https://freedomarkives.medium.com/saturday-still-has-to-be-proven-1b0faf13b55d": "https://cdn-images-1.medium.com/max/768/1*-RIeeNnjDWKUCPvyOrAdBA@2x.jpeg",
+    "https://freedomarkives.medium.com/self-determination-that-never-reaches-us-why-international-law-is-just-another-cover-for-empire-312aa66f13ad": "https://cdn-images-1.medium.com/max/768/1*5wnOOlxrhaspjYCxcdIupw@2x.jpeg",
+    "https://freedomarkives.medium.com/the-devil-on-the-shoulder-2cb1889178e2": "https://cdn-images-1.medium.com/max/768/1*ErZ_43DWX_aVhuiLcgBucg@2x.jpeg",
+    "https://freedomarkives.medium.com/why-does-god-allow-evil-aee6adb99b75": "https://cdn-images-1.medium.com/max/768/1*kN4HV5uiwarXbWrjeqNRPw@2x.jpeg",
+    "https://freedomarkives.medium.com/when-israels-promises-were-stolen-how-christian-doctrine-turned-our-liberation-into-their-bf0dfee0c9b4": "https://cdn-images-1.medium.com/max/768/1*rYsuWOrlIDWcfamAf7qyNw@2x.jpeg",
+    "https://freedomarkives.medium.com/obama-was-not-the-first-black-u-s-president-b47c0b9a2e07": "https://cdn-images-1.medium.com/max/768/1*6K-uzwNE1L2YyOA86UiL2A@2x.jpeg",
+    "https://freedomarkives.medium.com/the-social-verse-c70bf0742f53": "https://cdn-images-1.medium.com/max/768/1*4Vd-WCRGZSLZXMBnSUKIHQ@2x.jpeg",
+    "https://freedomarkives.medium.com/the-american-crucifixion-project-89a31c57c26c": "https://cdn-images-1.medium.com/max/768/1*aLIBX9ys96P4X69zWT_GVA@2x.jpeg",
+    "https://freedomarkives.medium.com/the-5-point-ministry-29f3eb254e96": "https://cdn-images-1.medium.com/max/768/1*whX1sYTj-AKpSbTQn0u48w@2x.jpeg",
+    "https://freedomarkives.medium.com/from-jerusalem-to-negroland-53598450e57d": "https://cdn-images-1.medium.com/max/768/1*Z5Qx-X_o-ZQVahz01NmATQ@2x.jpeg",
+    "https://freedomarkives.medium.com/frisco-teen-dies-after-assaulting-black-peer-a4eb4af03c27": "https://cdn-images-1.medium.com/max/768/1*zvjHzSoKfKKppm9EjHngrA@2x.jpeg",
+    "https://freedomarkives.medium.com/i-am-the-grandson-of-a-klansman-2ce1aeb8dc74": "https://cdn-images-1.medium.com/max/768/1*Rm3jck89nGZGoqcRNWS14w@2x.jpeg",
+    "https://freedomarkives.medium.com/who-is-yahuah-8857baa3d35e": "https://cdn-images-1.medium.com/max/768/1*By-Nv8rUqmsNu73QtinGJw@2x.jpeg",
+    "https://freedomarkives.medium.com/who-is-yahawashi-ae8283f70bbd": "https://cdn-images-1.medium.com/max/768/1*1XgZ3KXm1XzAsbCyb2ZT6g@2x.jpeg",
+    "https://freedomarkives.medium.com/iconoclasm-5ce6e7ca4a07": "https://cdn-images-1.medium.com/max/768/1*cjbkuG5gPqN0XbScG2-dfw@2x.jpeg",
+    "https://freedomarkives.medium.com/artificial-intelligence-power-grab-or-tool-for-resistance-972a8a20faa5": "https://cdn-images-1.medium.com/max/768/1*f0qSBxzDAzXKrmRxifucNQ@2x.jpeg",
+    "https://freedomarkives.medium.com/the-national-leadership-council-nlc-israels-next-evolution-73cdf03dfbaa": "https://cdn-images-1.medium.com/max/768/1*xC4MOaHDLsyOeGYfHspUsQ@2x.jpeg",
+    "https://freedomarkives.medium.com/what-is-exegesis-43c04b1ddcd0": "https://cdn-images-1.medium.com/max/768/1*u5iv6nqIdgyAOYsKJ_fP3w@2x.jpeg",
+    "https://freedomarkives.medium.com/the-palestine-confusion-a-historical-and-spiritual-deception-1d508fde4b50": "https://cdn-images-1.medium.com/max/768/1*gJR7SKXVall7VD4e4HHY7Q@2x.jpeg",
+    "https://freedomarkives.medium.com/kingdom-business-building-as-israelites-in-preparation-for-the-kingdom-8a437ff028ce": "https://cdn-images-1.medium.com/max/768/1*drJA_h83mCTREVuCczugdg@2x.jpeg",
+    "https://freedomarkives.medium.com/the-geez-canon-and-the-judgment-of-ethiopia-exposing-false-doctrine-and-prophetic-consequences-ca853b13f276": "https://cdn-images-1.medium.com/max/768/1*bwpi9YgFsFrRIODFNhwA0g@2x.jpeg",
+    "https://freedomarkives.medium.com/from-the-apostolic-ekklesia-to-the-roman-church-the-corruption-of-biblical-faith-and-its-legacy-d44a725fd660": "https://cdn-images-1.medium.com/max/768/1*sSzTY5SK9AEUcmkbv19K2g@2x.jpeg",
+    "https://freedomarkives.medium.com/can-we-all-get-along-uniting-hebrew-israelites-across-doctrines-d081711f1551": "https://cdn-images-1.medium.com/max/768/1*P-PPRFl71SGoK47D_ocrAA@2x.jpeg",
+    "https://freedomarkives.medium.com/is-christmas-really-pagan-maybe-its-just-the-tip-of-the-iceberg-a2f6dea446b8": "https://cdn-images-1.medium.com/max/768/1*IbqYImWY37ouHlDwDFQKFQ@2x.jpeg",
+    "https://freedomarkives.medium.com/who-is-yahawashi-a26b4b042f9e": "https://cdn-images-1.medium.com/max/768/1*Ld8bhPlFZUHsRlYhHBa-dg@2x.jpeg",
+    "https://freedomarkives.medium.com/heres-a-fully-developed-article-following-the-outline-integrating-your-expanded-insights-and-9ecf3f78f2a2": "https://cdn-images-1.medium.com/max/768/1*neL_WsBi6GOZ6NYjliRIaA@2x.jpeg",
+    "https://freedomarkives.medium.com/the-chodesh-breakdown-bc05a74e5476": "https://cdn-images-1.medium.com/max/768/1*olLJfc5qp6AVvBuIa7k3xw@2x.jpeg",
+    "https://freedomarkives.medium.com/jesus-fulfilled-sacrifices-not-the-law-6a61373e4310": "https://cdn-images-1.medium.com/max/768/1*EsAO4WwnsEHyc5LzipGiYw@2x.jpeg",
+    "https://freedomarkives.medium.com/the-systematic-erasure-of-israel-from-antiochus-to-the-negro-act-of-1740-2c8819ed68a9": "https://cdn-images-1.medium.com/max/768/1*PC2WKqCf8kRAnraMExzHzQ@2x.jpeg",
+    "https://freedomarkives.medium.com/fulfilling-the-law-in-matthew-5-17-doesnt-mean-abolishing-it-it-means-fulfilling-the-1ed380220201": "https://cdn-images-1.medium.com/max/768/1*1dz31ulpR4m3j2f_0jlk4w@2x.jpeg",
+}
+
+MISSING_THUMBS = ("", "None", FALLBACK_THUMB)
+
+
+def repair_thumbnails(page):
+    """Fill in article thumbnails harvested from the publication itself
+    (2026-10-11: 54 of 59 catalog articles carried a literal "None").
+    Keyed by article URL; only replaces missing markers, never a live
+    thumbnail, so feed-captured images always win. Idempotent."""
+    m = CATALOG_RE.search(page)
+    if not m:
+        return page
+    text = m.group(2)
+    try:
+        catalog = json.loads(text)
+    except Exception:
+        return page
+    fixed = 0
+    for a in catalog.get("articles", []):
+        raw_url = a.get("url") or ""
+        want = THUMBNAIL_FIXES.get(raw_url.split("?")[0].rstrip("/"))
+        if not want:
+            continue
+        if (a.get("thumbnail") or "") not in MISSING_THUMBS:
+            continue
+        upos = text.find(f'"url": "{raw_url}"')
+        if upos == -1:
+            continue
+        next_id = text.find('"id": "', upos)
+        seg_end = next_id if next_id != -1 else len(text)
+        tpos = text.find('"thumbnail": ', upos, seg_end)
+        if tpos == -1:
+            continue
+        vstart = tpos + len('"thumbnail": ')
+        if text.startswith("null", vstart):
+            text = text[:vstart] + f'"{want}"' + text[vstart + 4:]
+            fixed += 1
+            print(f"  thumbs: repaired {a.get('id')}")
+        elif text[vstart] == '"':
+            vend = text.find('"', vstart + 1)
+            if text[vstart + 1:vend] in MISSING_THUMBS:
+                text = text[:vstart + 1] + want + text[vend:]
+                fixed += 1
+                print(f"  thumbs: repaired {a.get('id')}")
+    if not fixed:
+        return page
+    print(f"  thumbs: {fixed} repaired in total")
+    return page[: m.start(2)] + text + page[m.end(2):]
+
+
 def ensure_broken_inheritance(page):
     """Insert the Broken Inheritance catalog entry once its Amazon edition went
     live (user-supplied link, 2026-10-11: Hardcover $80.00, ASIN B0HMMWNFNG).
@@ -407,6 +513,7 @@ def main():
     new_page = refresh_copy(new_page, total_articles)
     new_page = ensure_broken_inheritance(new_page)
     new_page = ensure_new_books(new_page)
+    new_page = repair_thumbnails(new_page)
     new_page = apply_real_covers(new_page)
 
     if new_page == page:
