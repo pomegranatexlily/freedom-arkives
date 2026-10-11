@@ -189,6 +189,7 @@ COVER_SOURCES = {
     "songs-of-masha": ("https://muse.ai/files/1336938832839460/1079116698480982/kl6e8t5werfey8g4y2vq1gii/songs-of-masha.jpg", "8a3bab5f11fc063e83649f68dacf182abf47c3238143099034ad6420c62f77c7"),
     "jacobs-trouble": ("https://muse.ai/files/1336938832839460/2172266613709459/zucxkgqbmaf5g52s4hz4yxvn/jacobs-trouble.jpg", "50d6649d896219163f8f0630a0b5cc39c4f1ee61f2ba428b0ff85fccfe8ade63"),
     "prophecy-over-dna": ("https://muse.ai/files/1336938832839460/941731408618041/7bm600u83gidepe7uywuwf7n/prophecy-over-dna.jpg", "46184fb85d11264764134c8ad7e55cdaae61abe8350a06d05a879797f2ed6a6f"),
+    "brownie-dream-bakery": ("https://muse.ai/files/1336938832839460/1076884655219974/n0z28jbad2v81ujnh902c27i/brownie-mcqueen-dream-bakery.jpg", "f235b4e79b78d24daa78cc9fec61f763e306cf9e7fe7a87d9c79fdcd41315e23"),
 }
 
 def fetch_bytes(url):
@@ -426,19 +427,37 @@ PROPHECY_OVER_DNA_ENTRY = """      {
       }"""
 
 
+
+DREAM_BAKERY_ENTRY = """      {
+        "id": "brownie-dream-bakery",
+        "title": "Brownie McQueen: and the Dream Bakery",
+        "author": "Nachamasha Yahsharala",
+        "series": "Brownie McQueen",
+        "cover": "__COVER__",
+        "order": 12,
+        "readingRole": "Take the mission and open the bakery",
+        "description": "Brownie McQueen is eight years old, tough as nails, and done being told a bakery is not a real job. When her Granny reveals a family mission that was never finished, Brownie picks up the badge, rallies her squad, and sets out to open the Dream Bakery, learning that a dream becomes real when a team plans, works, and refuses to quit.",
+        "subjects": ["Dreams", "Courage", "Teamwork"],
+        "editions": [
+          {"format": "Paperback", "price": "$12.00", "asin": "B0HMP5YPRM", "url": "https://www.amazon.com/dp/B0HMP5YPRM"}
+        ]
+      }"""
+
+
 NEW_BOOK_ENTRIES = [
     ("jacobs-trouble", JACOBS_TROUBLE_ENTRY, "assets/jacobs-trouble.jpg"),
     ("prophecy-over-dna", PROPHECY_OVER_DNA_ENTRY, "assets/prophecy-over-dna.jpg"),
+    ("brownie-dream-bakery", DREAM_BAKERY_ENTRY, "assets/brownie-mcqueen-dream-bakery.jpg"),
 ]
 
 
 def ensure_new_books(page):
-    """Insert catalog entries for Jacob's Trouble and Prophecy Over DNA
-    (user direction, 2026-10-11). Idempotent per book."""
+    """Insert catalog entries for books added by user direction
+    (2026-10-11). Idempotent per book."""
     missing = [(bid, tpl, ph) for bid, tpl, ph in NEW_BOOK_ENTRIES
                if f'"id": "{bid}"' not in page]
     if not missing:
-        print("  books: jacobs-trouble + prophecy-over-dna already in catalog.")
+        print("  books: all NEW_BOOK_ENTRIES already in catalog.")
         return page
     anchor = '      }\n    ],\n    "articles": ['
     if page.count(anchor) != 1:
