@@ -156,6 +156,11 @@ def refresh_copy(page, article_count):
         # 2026-10-10 user direction: the browser tab must not read "The New Jew".
         (r"<title>The New Jew</title>",
          "<title>Freedom Arkives \u2014 Official App</title>"),
+        # 2026-10-10 user direction: no "New Jew"/"strong Jew" framing — he is an Israelite, not Jewish.
+        (r'<p class="serial">The New Jew \u00b7 Civilizational doctrine 01</p>',
+         '<p class="serial">Freedom Arkives \u00b7 Civilizational doctrine 01</p>'),
+        (r"The strong Jew is the regenerated builder:",
+         "The strong Israelite is the regenerated builder:"),
     ]
     for pat, rep in subs:
         page, n = re.subn(pat, rep, page)
