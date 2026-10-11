@@ -183,6 +183,12 @@ COVER_SOURCES = {
     "this-aint-animal-farm": ("https://muse.ai/files/1336938832839460/1124952873807589/aymm3uoruldmd4r1up1kflvd/this-aint-animal-farm.jpg", "53a6f4bd3a803f70cc153ed26745a6fdeb25214782eb66a0fde0755de0a7d3b1"),
     "ash-rain": ("https://muse.ai/files/1336938832839460/1076823808530267/owh06hpnpx5wxd23vnzkfciy/ash-rain.jpg", "127184529fcba5ac45523341285356b507f8d317f78bcc73d2d4c308c372d21e"),
     "broken-inheritance": ("https://muse.ai/files/1336938832839460/39127615873550494/3fwjb0t03lozz8pp8zn1vc0s/broken-inheritance.jpg", "39916c28898f571a6bf5e4b10b5bf402d2b1f82cf96aaeea6030fd8394dd7774"),
+    "freedom-articles": ("https://muse.ai/files/1336938832839460/1439137174390525/cgjcqqa1lqgpx96z3hs2ugo2/freedom-articles.jpg", "a264cbd2e2bfe0c85e6bbff3e5ea1e354aaa3f0bb8aa10026d390a73359efbb6"),
+    "lawkeepers-guidebook": ("https://muse.ai/files/1336938832839460/1634088961632360/r7aq3fu5q8vb6wby9fpde5w2/lawkeepers-guidebook.jpg", "3fc7360470fd09b2c9c74ee304f73290ea890f994beee0fb41aad056196925bc"),
+    "rich-young-ruler": ("https://muse.ai/files/1336938832839460/1111469631468503/du7k6lxq8ekn685joxgqxi5t/rich-young-ruler.jpg", "7615fef754a17893a8570a5172c82e1b08decbe9dbd13cf059c71e6c31c49159"),
+    "songs-of-masha": ("https://muse.ai/files/1336938832839460/1079116698480982/kl6e8t5werfey8g4y2vq1gii/songs-of-masha.jpg", "8a3bab5f11fc063e83649f68dacf182abf47c3238143099034ad6420c62f77c7"),
+    "jacobs-trouble": ("https://muse.ai/files/1336938832839460/2172266613709459/zucxkgqbmaf5g52s4hz4yxvn/jacobs-trouble.jpg", "50d6649d896219163f8f0630a0b5cc39c4f1ee61f2ba428b0ff85fccfe8ade63"),
+    "prophecy-over-dna": ("https://muse.ai/files/1336938832839460/941731408618041/7bm600u83gidepe7uywuwf7n/prophecy-over-dna.jpg", "46184fb85d11264764134c8ad7e55cdaae61abe8350a06d05a879797f2ed6a6f"),
 }
 
 def fetch_bytes(url):
@@ -280,6 +286,70 @@ def ensure_broken_inheritance(page):
     return new_page
 
 
+JACOBS_TROUBLE_ENTRY = """      {
+        "id": "jacobs-trouble",
+        "title": "Jacob's Trouble \\"Birth of a King\\"",
+        "author": "M M Judah",
+        "series": null,
+        "cover": "__COVER__",
+        "order": 10,
+        "readingRole": "Protect the heir in the time of trouble",
+        "description": "Masha Ma-Yan Yahawadah does not know who he is. Then the forces hunting his unborn son force the truth out of hiding. The child is Yahawashi, the coming King, and Baron, an Edomite adversary tied to the ancient line of Haman, will kill to stop the birth. A prophetic novel of identity, betrayal, spiritual warfare, and the restoration of Israel.",
+        "subjects": ["Literature", "Heritage", "Captivity"],
+        "editions": [
+          {"format": "Kindle", "price": "$9.99", "asin": "B0DPVVHJSK", "url": "https://www.amazon.com/dp/B0DPVVHJSK"},
+          {"format": "Paperback", "price": "$10.00", "asin": "B0DQ2WL6NZ", "url": "https://www.amazon.com/dp/B0DQ2WL6NZ"}
+        ]
+      }"""
+
+
+PROPHECY_OVER_DNA_ENTRY = """      {
+        "id": "prophecy-over-dna",
+        "title": "Prophecy OVER DNA",
+        "author": "M M Judah",
+        "series": "The Freedom Articles Series",
+        "cover": "__COVER__",
+        "order": 11,
+        "readingRole": "Name the bloodline by prophecy",
+        "description": "A world captivated by ancestry tests wants DNA to decide who Israel is. This book answers that prophecy, covenant, and paternal lineage, not genetic markers, define the true descendants of Israel. It traces the African diaspora through the curses of Deuteronomy 28 and the historical migration of Israelites into Africa, and calls the awakening back to Torah and restoration.",
+        "subjects": ["Heritage", "Scripture", "Inheritance"],
+        "editions": [
+          {"format": "Kindle", "price": "$9.99", "asin": "B0DR3MCQNT", "url": "https://www.amazon.com/dp/B0DR3MCQNT"},
+          {"format": "Paperback", "price": "$9.99", "asin": "B0DR6VMDH6", "url": "https://www.amazon.com/dp/B0DR6VMDH6"}
+        ]
+      }"""
+
+
+NEW_BOOK_ENTRIES = [
+    ("jacobs-trouble", JACOBS_TROUBLE_ENTRY, "assets/jacobs-trouble.jpg"),
+    ("prophecy-over-dna", PROPHECY_OVER_DNA_ENTRY, "assets/prophecy-over-dna.jpg"),
+]
+
+
+def ensure_new_books(page):
+    """Insert catalog entries for Jacob's Trouble and Prophecy Over DNA
+    (user direction, 2026-10-11). Idempotent per book."""
+    missing = [(bid, tpl, ph) for bid, tpl, ph in NEW_BOOK_ENTRIES
+               if f'"id": "{bid}"' not in page]
+    if not missing:
+        print("  books: jacobs-trouble + prophecy-over-dna already in catalog.")
+        return page
+    anchor = '      }\n    ],\n    "articles": ['
+    if page.count(anchor) != 1:
+        print("ERROR: books-array anchor not found exactly once", file=sys.stderr)
+        return page
+    parts = [tpl.replace('__COVER__', ph) for _, tpl, ph in missing]
+    new_page = page.replace(
+        anchor, '      },\n' + ',\n'.join(parts) + '\n    ],\n    "articles": [', 1)
+    m = CATALOG_RE.search(new_page)
+    check = json.loads(m.group(2))
+    ids = [b.get("id") for b in check["books"]]
+    for bid, _, _ in missing:
+        assert ids.count(bid) == 1, f"book insert sanity check failed for {bid}"
+        print(f"  books: inserted {bid} (catalog now {len(ids)} books).")
+    return new_page
+
+
 def main():
     with open(INDEX_PATH, encoding="utf-8") as f:
         page = f.read()
@@ -336,6 +406,7 @@ def main():
     total_articles = len(articles) + len(fresh)
     new_page = refresh_copy(new_page, total_articles)
     new_page = ensure_broken_inheritance(new_page)
+    new_page = ensure_new_books(new_page)
     new_page = apply_real_covers(new_page)
 
     if new_page == page:
