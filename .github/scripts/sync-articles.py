@@ -168,6 +168,43 @@ def refresh_copy(page, article_count):
     return page
 
 
+BROKEN_INHERITANCE_ENTRY = """      {
+        "id": "broken-inheritance",
+        "title": "From Broken Inheritance to Black Liberation",
+        "author": "Christopher M Turner",
+        "series": null,
+        "cover": "assets/broken-inheritance.jpg",
+        "order": 9,
+        "readingRole": "Turn survival into inheritance",
+        "description": "Black people have survived. Survival alone cannot guarantee that children inherit the safety, knowledge, property, and institutions needed to direct their own futures. From Broken Inheritance to Black Liberation turns an unfinished recovery into a practical program for health, skill, ownership, memory, accountable leadership, and long-term power. The measure is not how much we endure. It is what we can build, keep, govern, and pass forward.",
+        "subjects": ["Liberation", "Capacity", "Continuity"],
+        "editions": [
+          {"format": "Hardcover", "price": "$80.00", "asin": "B0HMMWNFNG", "url": "https://www.amazon.com/dp/B0HMMWNFNG"}
+        ]
+      }"""
+
+
+def ensure_broken_inheritance(page):
+    """Insert the Broken Inheritance catalog entry once its Amazon edition went
+    live (user-supplied link, 2026-10-11: Hardcover $80.00, ASIN B0HMMWNFNG).
+    Idempotent: no-op when the entry is already in the catalog."""
+    if '"id": "broken-inheritance"' in page:
+        print("  books: broken-inheritance already in catalog.")
+        return page
+    anchor = '      }\n    ],\n    "articles": ['
+    if page.count(anchor) != 1:
+        print("ERROR: books-array anchor not found exactly once", file=sys.stderr)
+        return page
+    new_page = page.replace(
+        anchor, '      },\n' + BROKEN_INHERITANCE_ENTRY + '\n    ],\n    "articles": [', 1)
+    m = CATALOG_RE.search(new_page)
+    check = json.loads(m.group(2))
+    ids = [b.get("id") for b in check["books"]]
+    assert ids.count("broken-inheritance") == 1, "book insert sanity check failed"
+    print(f"  books: inserted broken-inheritance (catalog now {len(ids)} books).")
+    return new_page
+
+
 def main():
     with open(INDEX_PATH, encoding="utf-8") as f:
         page = f.read()
@@ -223,6 +260,7 @@ def main():
 
     total_articles = len(articles) + len(fresh)
     new_page = refresh_copy(new_page, total_articles)
+    new_page = ensure_broken_inheritance(new_page)
 
     if new_page == page:
         print("No changes to write.")
