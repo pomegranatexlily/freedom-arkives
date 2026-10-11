@@ -153,6 +153,9 @@ def refresh_copy(page, article_count):
          ""),
         (r"; typographic covers are replaceable assets, ready for final cover files at the same paths\.",
          ""),
+        # 2026-10-10 user direction: the browser tab must not read "The New Jew".
+        (r"<title>The New Jew</title>",
+         "<title>Freedom Arkives \u2014 Official App</title>"),
     ]
     for pat, rep in subs:
         page, n = re.subn(pat, rep, page)
