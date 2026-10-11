@@ -165,6 +165,9 @@ def refresh_copy(page, article_count):
          "The strong Israelite is not the one who can name the captivity."),
         (r"Strong-Jew discipline",
          "Strong-Israelite discipline"),
+        # 2026-10-11 user-sealed statement: the two peoples / rival claims separation note.
+        (r"The words \u201cJew,\u201d \u201cIsrael,\u201d \u201ccovenant,\u201d and \u201crestoration\u201d are used here inside Freedom Arkives\u2019 own Covenant Anthropology\.",
+         "Within Freedom Arkives\u2019 Covenant Anthropology, the terms \u201cIsrael,\u201d \u201ccovenant,\u201d and \u201crestoration\u201d bear a determinate meaning. The Israel of this work is not the Jewish Israeli state, which it does not support; it is the Native Israelite people \u2014 so-called African Americans and the other children of the transatlantic slave trade \u2014 together with their claim to a homeland of their own. The two peoples advance distinct claims upon a single covenant blessing, and their relation is one of rivalry, not alliance."),
     ]
     for pat, rep in subs:
         page, n = re.subn(pat, rep, page)
