@@ -161,6 +161,10 @@ def refresh_copy(page, article_count):
          '<p class="serial">Freedom Arkives \u00b7 Civilizational doctrine 01</p>'),
         (r"The strong Jew is the regenerated builder:",
          "The strong Israelite is the regenerated builder:"),
+        (r"The strong Jew is not the one who can name the captivity\.",
+         "The strong Israelite is not the one who can name the captivity."),
+        (r"Strong-Jew discipline",
+         "Strong-Israelite discipline"),
     ]
     for pat, rep in subs:
         page, n = re.subn(pat, rep, page)
