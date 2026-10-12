@@ -190,6 +190,7 @@ COVER_SOURCES = {
     "jacobs-trouble": ("https://muse.ai/files/1336938832839460/2172266613709459/zucxkgqbmaf5g52s4hz4yxvn/jacobs-trouble.jpg", "50d6649d896219163f8f0630a0b5cc39c4f1ee61f2ba428b0ff85fccfe8ade63"),
     "prophecy-over-dna": ("https://muse.ai/files/1336938832839460/941731408618041/7bm600u83gidepe7uywuwf7n/prophecy-over-dna.jpg", "46184fb85d11264764134c8ad7e55cdaae61abe8350a06d05a879797f2ed6a6f"),
     "brownie-dream-bakery": ("https://muse.ai/files/1336938832839460/1076884655219974/n0z28jbad2v81ujnh902c27i/brownie-mcqueen-dream-bakery.jpg", "f235b4e79b78d24daa78cc9fec61f763e306cf9e7fe7a87d9c79fdcd41315e23"),
+    "pine-hollow": ("https://muse.ai/files/1336938832839460/29125215170502880/0g1fohthqfaak446uu0yjm54/pine-hollow-we-remember.jpg", "0026404daa263d56473f5dae9420c932517a4d47b79c85524aa9de658195b3bc"),
 }
 
 def fetch_bytes(url):
@@ -444,10 +445,28 @@ DREAM_BAKERY_ENTRY = """      {
       }"""
 
 
+
+PINE_HOLLOW_ENTRY = """      {
+        "id": "pine-hollow",
+        "title": "Pine Hollow: We Remember",
+        "author": "Christopher Turner",
+        "series": null,
+        "cover": "__COVER__",
+        "order": 13,
+        "readingRole": "Remember what they tried to erase",
+        "description": "Pine Hollow was a thriving Black covenant community, bound by sacred songs, old promises, and the worship of Yahawah. Then a lie started a fire, and in a single week the town was wiped from the map; where homes stood, they built a park and planted a sign calling it a peaceful green. Forty years later, the names, the ground, and the truth are still carried by the people who remember.",
+        "subjects": ["Literature", "Memory", "Heritage"],
+        "editions": [
+          {"format": "Paperback", "price": "$12.00", "asin": "B0HMQJYYJM", "url": "https://www.amazon.com/dp/B0HMQJYYJM"}
+        ]
+      }"""
+
+
 NEW_BOOK_ENTRIES = [
     ("jacobs-trouble", JACOBS_TROUBLE_ENTRY, "assets/jacobs-trouble.jpg"),
     ("prophecy-over-dna", PROPHECY_OVER_DNA_ENTRY, "assets/prophecy-over-dna.jpg"),
     ("brownie-dream-bakery", DREAM_BAKERY_ENTRY, "assets/brownie-mcqueen-dream-bakery.jpg"),
+    ("pine-hollow", PINE_HOLLOW_ENTRY, "assets/pine-hollow-we-remember.jpg"),
 ]
 
 
