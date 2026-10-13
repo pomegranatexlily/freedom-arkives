@@ -1,8 +1,9 @@
 /* Freedom Arkives — first-party offline shell.
  * Scope: /freedom-arkives/ only; never intercepts sibling GitHub projects.
  * HTML is NETWORK-FIRST to keep the daily article catalog fresh online.
- * Same-origin assets are CACHE-FIRST; bump VERSION whenever static assets
- * or security/consent code changes, to invalidate their cached copies.
+ * Images/icons are CACHE-FIRST; scripts/styles use NETWORK-FIRST so
+ * security and consent updates arrive online without waiting for a version bump.
+ * Bump VERSION to invalidate old cached files after future changes.
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
@@ -85,7 +86,23 @@ self.addEventListener("fetch", function(event) {
     })());
     return;
   }
-  // A static first-party file: offline and faster repeat views.
+  // Executable scripts and styles receive security fixes online first.
+  // Cached versions are used only when offline.
+  if (request.destination === "script" || request.destination === "style" ||
+      /\.(?:js|css)$/i.test(url.pathname)) {
+    event.respondWith((async function() {
+      const cache = await caches.open(ASSET_CACHE);
+      try {
+        const response = await fetch(request);
+        if (valid(response)) await cache.put(request, response.clone());
+        return response;
+      } catch (_) {
+        return (await cache.match(request, {ignoreSearch:true})) || Response.error();
+      }
+    })());
+    return;
+  }
+  // Same-origin images, fonts and other versioned static assets: cache first.
   event.respondWith((async function() {
     const cache = await caches.open(ASSET_CACHE);
     const hit = await cache.match(request, {ignoreSearch:true});
