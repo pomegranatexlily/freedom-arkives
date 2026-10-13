@@ -6,7 +6,7 @@
 
 For a security vulnerability, open the repository **Security** tab and look for **Report a vulnerability**. If private vulnerability reporting is enabled, use that channel. If it is not available, **do not disclose exploit details publicly**. The maintainers must configure a private security contact channel before accepting private reports.
 
-For general, non-sensitive questions or ordinary bugs, use the structured [GitHub issue forms](../../issues/new/choose). These are PUBLIC and are not suitable for personal-data access or deletion requests.
+For general, non-sensitive questions or ordinary bugs, use the structured [GitHub issue forms](https://github.com/pomegranatexlily/freedom-arkives/issues/new/choose). These are PUBLIC and are not suitable for personal-data access or deletion requests.
 
 ## Data practices and restrictions
 
