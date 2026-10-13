@@ -15,9 +15,6 @@
   <meta property="og:title" content="Freedom Arkives — Official App" />
   <meta property="og:description" content="Books, articles, historical research, and a framework for covenant restoration, institutional capacity, and civilizational continuity." />
   <meta property="og:url" content="https://pomegranatexlily.github.io/freedom-arkives/" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,650;6..72,750&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: light dark;
@@ -337,6 +334,7 @@
     .eco-more .eco-tree li { margin-bottom: 8px; }
     .eco-more .eco-tree strong { color: var(--ink); }
   </style>
+<script src="privacy-consent.js"></script>
 </head>
 <body>
   <header class="site-head">
@@ -684,7 +682,7 @@
           <a href="#assignment">Mission finder</a>
         </nav>
       </div>
-      <div class="foot-bottom"><span>Freedom Arkives · POMEGRANATE × LILY</span><span>Covenant · Capacity · Continuity</span></div>
+      <div class="foot-bottom"><span>Freedom Arkives · POMEGRANATE × LILY</span><span>Covenant · Capacity · Continuity · <a href="privacy.html">Privacy policy</a></span></div>
     </div>
   </footer>
 
@@ -2114,7 +2112,7 @@
           if (article.thumbnail) {
             thumb = make("div", "article-thumb");
             var thumbImg = document.createElement("img");
-            thumbImg.src = article.thumbnail;
+            thumbImg.src = (/^https?:\/\//i.test(article.thumbnail) && !(window.FreedomPrivacy && window.FreedomPrivacy.allowed("externalMedia"))) ? "assets/fa-article-fallback.jpg" : article.thumbnail;
             thumbImg.alt = "Thumbnail for " + article.title;
             thumbImg.loading = "lazy";
             thumb.appendChild(thumbImg);
@@ -2149,6 +2147,7 @@
         else { bookDetail.hidden = true; catalogView.hidden = false; }
       });
 
+      window.addEventListener("fa-privacy-change", renderArticles);
       renderBooks();
       renderArticles();
       if (location.hash.indexOf("#book-") === 0) openBook(location.hash.slice(6), false);
