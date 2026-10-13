@@ -1,0 +1,46 @@
+name: Validate the four public Pomegranate x Lily sites
+on:
+  push:
+    paths:
+      - ".github/workflows/public-release-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Verify deployed metadata, branded 404 and preview assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          check() {
+            local key="$1" base="$2"
+            echo "::group::$key"
+            mkdir -p "$tmp/$key"
+            for path in "" "404.html" "privacy.html" "social-preview.png"; do
+              curl --fail --location --silent --show-error --retry 8 --retry-all-errors \
+                --retry-delay 8 --connect-timeout 10 --max-time 30 \
+                "${base}${path}" -o "$tmp/$key/${path:-home.html}"
+            done
+            grep -q "og:image" "$tmp/$key/home.html"
+            grep -q "noindex" "$tmp/$key/404.html"
+            test "$(head -c 4 "$tmp/$key/social-preview.png" | od -An -tx1 | tr -d ' \n')" = "89504e47"
+            echo "$key: homepage meta, custom 404, privacy and PNG preview OK"
+            echo "::endgroup::"
+          }
+          check "atelier" "https://pomegranatexlily.github.io/Python-Atelier/"
+          check "arkives" "https://pomegranatexlily.github.io/freedom-arkives/"
+          check "builder" "https://pomegranatexlily.github.io/gcaflqc-builder/"
+          check "pages" "https://pomegranatexlily.github.io/pages-app/"
+          curl --fail --location --silent --show-error --retry 8 \
+            "https://pomegranatexlily.github.io/freedom-arkives/sw.js" \
+            -o "$tmp/arkives-sw.js"
+          grep -q "fa-offline-" "$tmp/arkives-sw.js"
+          curl --fail --location --silent --show-error --retry 8 \
+            "https://pomegranatexlily.github.io/pages-app/icon-maskable-512.png" \
+            -o "$tmp/pages-maskable.png"
+          test "$(head -c 4 "$tmp/pages-maskable.png" | od -An -tx1 | tr -d ' \n')" = "89504e47"
+          echo "Freedom Arkives offline-worker and PAGES maskable icon paths OK"
