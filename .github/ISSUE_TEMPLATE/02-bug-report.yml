@@ -1,0 +1,39 @@
+name: Bug report (public)
+description: Report a non-sensitive functional problem without sharing account details, private documents, or secrets.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        GitHub issues are **PUBLIC**. Do not share private data, passwords, tokens, your actual saved files, or sensitive screenshots. For security vulnerabilities, read SECURITY.md instead.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public issue acknowledgment
+      options:
+        - label: My report does not include private data, passwords, API keys, or confidential content.
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What went wrong?
+      description: Describe the problem without sharing personal data.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |-
+        1. Open the website
+        2. Select a public feature
+        3. See the error
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device/browser
+      options:
+        - Desktop browser
+        - iPhone/iPad Safari
+        - Android browser
+        - Other or unsure
