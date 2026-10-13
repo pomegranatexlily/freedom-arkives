@@ -1,0 +1,26 @@
+# Independent Render static-site preview for Freedom Arkives
+# Separate services receive separate *.onrender.com origins.
+# Important: do not redirect GitHub Pages or switch canonical URLs until
+# the new site, user data migration, and Search Console are verified.
+services:
+  - type: web
+    name: pl-freedom-arkives
+    runtime: static
+    repo: https://github.com/pomegranatexlily/freedom-arkives
+    branch: main
+    buildCommand: echo 'No build step required for this static site'
+    staticPublishPath: ./
+    autoDeployTrigger: commit
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: no-referrer
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: X-Robots-Tag
+        value: noindex, nofollow
