@@ -15,4 +15,5 @@
     Referrer-Policy = "no-referrer"
     X-Frame-Options = "SAMEORIGIN"
     X-Robots-Tag = "noindex, nofollow"
+    Strict-Transport-Security = "max-age=31536000"
 
