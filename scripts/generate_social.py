@@ -69,3 +69,14 @@ if CONFIG["kind"] == "pages":
     for n,f in [(32,"favicon-32.png"),(180,"apple-touch-icon.png"),(192,"icon-192.png"),(512,"icon-512.png")]:
         make_pages_icon(n,f)
         print("Created",f)
+if CONFIG["kind"] == "arkives":
+    for n,f in [(180,"apple-touch-icon.png"),(192,"icon-192.png"),(512,"icon-512.png")]:
+        ico=Image.new("RGB",(n,n),(12,34,23))
+        q=ImageDraw.Draw(ico)
+        r=max(3,n//12)
+        q.rounded_rectangle((r,r,n-r,n-r),radius=n//9,outline=(214,181,138),width=max(2,n//36))
+        q.line((n//2,n//3,n//2,2*n//3),fill=(214,181,138),width=max(2,n//37))
+        q.arc((n//4,n//3,n//2,n*2//3),60,300,fill=(214,181,138),width=max(2,n//36))
+        q.arc((n//2,n//3,n*3//4,n*2//3),240,120,fill=(214,181,138),width=max(2,n//36))
+        ico.save(ROOT/f,optimize=True)
+        print("Created",f)
