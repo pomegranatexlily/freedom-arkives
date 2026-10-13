@@ -1,0 +1,38 @@
+name: Privacy question (public)
+description: Ask a general question about our privacy practices. GitHub issues are public; do not post personal information or confidential data.
+title: "[Privacy] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **IMPORTANT: This form and its replies are PUBLIC on the internet.**
+        Do not include an email address, physical address, IP address, passwords, health information, payment details, personal requests, code containing secrets, or other sensitive information.
+        **Do not submit personal-data access/deletion requests here.** Those require a private contact channel.
+        Do not disclose security vulnerabilities here; see SECURITY.md.
+  - type: checkboxes
+    id: public-safety
+    attributes:
+      label: Public issue acknowledgment
+      options:
+        - label: I understand this issue will be public and I will not provide private or sensitive information.
+          required: true
+  - type: dropdown
+    id: topic
+    attributes:
+      label: General topic
+      options:
+        - Privacy policy wording
+        - Browser storage
+        - Cookies or third-party services
+        - Consent/settings interface
+        - Other general question
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Public question
+      description: Do not include identifying information.
+      placeholder: What would you like to know about the site's general privacy practices?
+    validations:
+      required: true
