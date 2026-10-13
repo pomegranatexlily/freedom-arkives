@@ -1,0 +1,18 @@
+# Freedom Arkives — zero-build, no-cost Netlify static-site preview
+# GitHub Pages remains the current public site until migration is tested.
+# Netlify's unique *.netlify.app hostname creates a separate browser origin.
+# The temporary noindex header must be reviewed/removed only when the
+# canonical/SEO cutover and existing learner data migration are ready.
+
+[build]
+  publish = "."
+  command = "echo 'Static site: no build required'"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    X-Frame-Options = "SAMEORIGIN"
+    X-Robots-Tag = "noindex, nofollow"
+
