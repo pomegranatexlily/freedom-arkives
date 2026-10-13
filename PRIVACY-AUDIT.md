@@ -49,3 +49,13 @@
 6. Validate every Workshop page and homepage on a real phone and desktop browser.
 
 **Change rule:** If adding email capture, subscriptions, accounts, comments, embeds, analytics, ad pixels, or downloadable tools with new networking behavior, repeat this audit and seek jurisdiction-appropriate legal review before release.
+
+## Offline functionality added October 13, 2026
+
+- A first-party scoped service worker (`sw.js`) supports offline Freedom Arkives reading.
+- The worker is registered after a visitor makes a privacy choice, including Reject optional; essential caching does not enable any optional tracker.
+- HTML navigation is network-first to prefer newly synced daily article-catalog content when online, with cached page / dedicated offline-page fallback on disconnection.
+- First-party assets are cache-first. The service-worker `VERSION` must be advanced when static, privacy, or security assets change so outdated files expire.
+- Other GitHub Pages applications and third-party Medium/Google requests are explicitly outside the service-worker scope and cache policy.
+- Offline storage occupies device space and is erased by browser clearing/site storage; it does not back up the user's locally authored Workshop drafts.
+- **Manual QA required:** iPhone Safari and standalone PWA offline/online behavior, cache invalidation after daily sync, Workshop tools, consent flow, and repeat visits.
