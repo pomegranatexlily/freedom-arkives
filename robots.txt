@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pomegranatexlily.github.io/freedom-arkives/sitemap.xml
