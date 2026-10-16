@@ -35,6 +35,7 @@
       var a = document.createElement("a"); a.href = r.hash; a.textContent = r.label; list.appendChild(a);
     });
     Array.from(slot.querySelectorAll("a[href]")).filter(function (a) { return a.getAttribute("href").charAt(0) !== "#"; }).forEach(function (a) { list.appendChild(a.cloneNode(true)); });
+    var readerLink = document.createElement("a"); readerLink.href = "reader/"; readerLink.textContent = "Read & Listen"; list.appendChild(readerLink);
     slot.appendChild(menu);
     function render(scroll) {
       var hash = location.hash;

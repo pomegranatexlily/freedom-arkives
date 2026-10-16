@@ -7,15 +7,20 @@
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
-const VERSION = "fa-offline-8fa92c70a2748f41";
+const VERSION = "fa-offline-2414f63a91867d44";
 const HTML_CACHE = VERSION + "-pages";
 const ASSET_CACHE = VERSION + "-assets";
 const ORIGIN = self.location.origin;
 const BASE = new URL(self.registration.scope);
 const OFFLINE_URL = new URL("offline.html", BASE).href;
 const SHELL_PAGES = [
-  "./", "privacy.html", "workshop/", "workshop/engine/",
-  "workshop/nurah/", "workshop/registry/"
+  "./",
+  "privacy.html",
+  "workshop/",
+  "workshop/engine/",
+  "workshop/nurah/",
+  "workshop/registry/",
+  "reader/"
 ];
 const SHELL_ASSETS = [
   "app-navigation.css",
@@ -48,6 +53,8 @@ const SHELL_ASSETS = [
   "offline-register.js",
   "privacy-consent.css",
   "privacy-consent.js",
+  "reader/reader.css",
+  "reader/reader.js",
   "social-preview.png"
 ];
 function urlFor(path) { return new URL(path, BASE).href; }
