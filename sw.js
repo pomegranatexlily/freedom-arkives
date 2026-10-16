@@ -7,7 +7,7 @@
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
-const VERSION = "fa-offline-4c102abb822df365";
+const VERSION = "fa-offline-8fa92c70a2748f41";
 const HTML_CACHE = VERSION + "-pages";
 const ASSET_CACHE = VERSION + "-assets";
 const ORIGIN = self.location.origin;
@@ -30,6 +30,7 @@ const SHELL_ASSETS = [
   "assets/extracted/63a71f2604a1f4fc6366e93b.jpg",
   "assets/extracted/7240b75a15cb00b3381e99cf.jpg",
   "assets/extracted/8c5f2edd511b5efd01eb51de.jpg",
+  "assets/extracted/96bc79c25a875864f4cb592f.avif",
   "assets/extracted/9c3ff23e5544612ced72ae51.jpg",
   "assets/extracted/b1fc06c804d69d4e8f802cf8.jpg",
   "assets/extracted/c370842cf99ee68952c7ede4.jpg",
