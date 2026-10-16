@@ -28,7 +28,10 @@
       return {panel:panel, label:label, hash:panel.id ? "#" + panel.id : ""};
     });
     var menu = document.createElement("details"); menu.id = "fa-section-menu";
-    var toggle = document.createElement("summary"); toggle.textContent = "☰"; toggle.setAttribute("aria-label", "Open navigation menu"); menu.appendChild(toggle);
+    /* Approved homepage menu */
+    var toggle = document.createElement("summary"); toggle.setAttribute("aria-label", "Open navigation menu");
+    var menuIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg"); menuIcon.setAttribute("viewBox", "0 0 24 24"); menuIcon.setAttribute("aria-hidden", "true");
+    var menuLines = document.createElementNS("http://www.w3.org/2000/svg", "path"); menuLines.setAttribute("d", "M5 7h14M5 12h14M5 17h10"); menuIcon.appendChild(menuLines); toggle.appendChild(menuIcon); menu.appendChild(toggle);
     var list = document.createElement("nav"); list.className = "fa-menu-links"; list.setAttribute("aria-label", "App sections"); menu.appendChild(list);
     records.forEach(function (r) {
       if (!r.label || !r.hash) return;
@@ -37,6 +40,12 @@
     Array.from(slot.querySelectorAll("a[href]")).filter(function (a) { return a.getAttribute("href").charAt(0) !== "#"; }).forEach(function (a) { list.appendChild(a.cloneNode(true)); });
     var readerLink = document.createElement("a"); readerLink.href = "reader/"; readerLink.textContent = "Read & Listen"; list.appendChild(readerLink);
     slot.appendChild(menu);
+    function mountSettings() {
+      var settings = slot.querySelector(".fa-site-settings");
+      if (settings) { settings.textContent = "Settings"; list.appendChild(settings); }
+    }
+    mountSettings();
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mountSettings, {once:true});
     function render(scroll) {
       var hash = location.hash;
       var id;
@@ -56,7 +65,7 @@
         else window.scrollTo({top:0, behavior:"auto"});
       }
     }
-    list.addEventListener("click", function (event) { if (event.target.closest("a")) menu.open = false; });
+    list.addEventListener("click", function (event) { if (event.target.closest("a,.fa-site-settings")) menu.open = false; });
     document.addEventListener("keydown", function (event) { if (event.key === "Escape" && menu.open) { menu.open = false; toggle.focus(); } });
     document.addEventListener("click", function (event) { if (menu.open && !menu.contains(event.target)) menu.open = false; });
     window.addEventListener("hashchange", function () { render(true); });

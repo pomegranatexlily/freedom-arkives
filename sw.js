@@ -7,7 +7,7 @@
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
-const VERSION = "fa-offline-cbb53b9231b6d937";
+const VERSION = "fa-offline-95c2154b7c4cdb53";
 const HTML_CACHE = VERSION + "-pages";
 const ASSET_CACHE = VERSION + "-assets";
 const ORIGIN = self.location.origin;
@@ -43,6 +43,7 @@ const SHELL_ASSETS = [
   "assets/fa-article-fallback.jpg",
   "assets/fa-hero.jpg",
   "assets/fa-icon.jpg",
+  "assets/fonts/SchibstedGrotesk-wght.ttf",
   "favicon-32.png",
   "homepage-script-1.js",
   "homepage-script-2.js",

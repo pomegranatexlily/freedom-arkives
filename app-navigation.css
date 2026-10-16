@@ -50,3 +50,24 @@
   .fa-section-navigation .foot-brand strong{font-size:24px}
   .fa-section-navigation footer{padding-top:24px}
 }
+
+/* Approved Schibsted homepage polish */
+@font-face{font-family:"Schibsted Grotesk";src:url("assets/fonts/SchibstedGrotesk-wght.ttf") format("truetype");font-style:normal;font-weight:100 900;font-display:swap}
+html.fa-section-navigation{--serif:"Schibsted Grotesk",system-ui,sans-serif;--sans:"Schibsted Grotesk",system-ui,sans-serif;--mono:"Schibsted Grotesk",system-ui,sans-serif}
+.fa-section-navigation .brand strong{font-weight:600}
+#fa-section-menu summary{width:44px;height:44px;min-height:44px;border:3px solid #fff;border-radius:50%;background:#203027;color:#fff}
+#fa-section-menu summary svg{display:block;width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+#fa-section-menu .fa-site-settings{display:block;width:100%;min-height:44px;padding:12px;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;color:inherit;text-align:left;font:500 14px/1.4 var(--sans);cursor:pointer}
+#fa-section-menu .fa-site-settings::before{content:none}
+#fa-section-menu .fa-site-settings:hover{background:var(--paper-2);color:var(--copper);opacity:1}
+#fa-section-menu .fa-site-settings:focus-visible{outline:3px solid var(--copper);outline-offset:2px}
+#home .hero-actions .btn{display:flex;align-items:center;justify-content:center;min-height:49px;padding:14px 22px;border:0;border-radius:999px;font-family:var(--sans);font-size:15px;line-height:1.35;font-weight:500;letter-spacing:-.015em;transition:opacity .15s,transform .15s}
+#home .hero-actions .btn.primary{background:var(--ink);color:var(--paper)}
+#home .hero-actions .btn.primary:hover{background:var(--ink);color:var(--paper);opacity:.9}
+#home .hero-actions .btn:not(.primary){gap:12px;min-height:48px;padding:12px 0;border:0;border-radius:0;background:transparent;color:var(--ink);font-size:14px;text-decoration:none}
+#home .hero-actions .btn:not(.primary)::after{content:"\2192";font-size:18px;line-height:1}
+#home .hero-actions .btn:not(.primary):hover{color:var(--copper)}
+#home .hero-actions .btn:active{transform:translateY(1px)}
+#home .hero-actions .btn:focus-visible{outline:2px solid var(--copper);outline-offset:4px}
+@media(max-width:640px){#home .hero-actions{flex-direction:column;align-items:stretch;gap:12px}#home .hero-actions .btn{width:100%}}
+@media(prefers-reduced-motion:reduce){#home .hero-actions .btn{transition:none;transform:none}}

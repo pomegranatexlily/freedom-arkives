@@ -12,7 +12,7 @@ try {
 function allowed(k){return !!(choice && choice[k]===true);}
 function fonts(){
   var link=document.getElementById("fa-external-fonts");
-  if(!allowed("externalMedia")){if(link)link.remove();return;}
+  if(document.querySelector(".site-head") || !allowed("externalMedia")){if(link)link.remove();return;}
   if(!link){link=document.createElement("link");link.id="fa-external-fonts";link.rel="stylesheet";link.href=fontsUrl;document.head.appendChild(link);}
 }
 function set(media){
@@ -62,12 +62,13 @@ function init(){
   var style=document.createElement("link");
   style.rel="stylesheet";style.href=stylesUrl;
   document.head.appendChild(style);
-  var slot=document.querySelector(".site-head .nav") ||
+  var slot=document.querySelector(".site-head .nav .fa-menu-links") ||
+    document.querySelector(".site-head .nav") ||
     document.querySelector("header.top") ||
     document.querySelector(".top") ||
     document.querySelector("header") ||
     document.querySelector("footer");
-  manage=makeButton("⚙ Settings","fa-site-settings",open);
+  manage=makeButton("Settings","fa-site-settings",open);
   manage.setAttribute("aria-label","Site settings, including privacy choices");
   manage.title="Site settings · privacy preferences";
   if(slot)slot.appendChild(manage);
