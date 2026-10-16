@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - scripts/split_homepage.py
+      - scripts/add_brownie_wars.py
       - app-navigation.js
       - app-navigation.css
       - .github/workflows/compact-homepage.yml
@@ -41,6 +42,8 @@ jobs:
           elif text.count(restored) != 1:
               raise SystemExit("Unexpected Apple icon markup; no changes made")
           PY
+      - name: Add the screenshot-confirmed fourteenth book
+        run: python3 scripts/add_brownie_wars.py
       - name: Extract resources and verify publication preservation
         run: python3 scripts/split_homepage.py
       - name: Check JavaScript syntax
