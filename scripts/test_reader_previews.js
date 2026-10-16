@@ -6,7 +6,7 @@ const path=require("node:path");
 const repo=path.join(__dirname,"..");
 const previews=require(path.join(repo,"reader","book-previews.js"));
 const home=fs.readFileSync(path.join(repo,"index.html"),"utf8");
-const match=home.match(/<script type="application\\/json" id="catalogData">([\\s\\S]*?)<\\/script>/);
+const match=home.match(/<script type="application\/json" id="catalogData">([\s\S]*?)<\/script>/);
 assert.ok(match,"Catalog JSON present");
 const books=JSON.parse(match[1]).books;
 assert.equal(books.length,14,"Expected 14 published catalog books");
@@ -18,7 +18,7 @@ for(const [i,book] of books.entries()){
  assert.equal(p.title,book.title);
  assert.ok(["catalog-themed introduction","published catalog description"].includes(p.source));
  assert.ok(book.editions.some(e=>e.url===p.purchaseUrl&&e.format===p.purchaseFormat),"Verified purchase URL");
- const words=p.text.trim().split(/\\s+/).length;
+ const words=p.text.trim().split(/\s+/).length;
  assert.ok(words>=45&&words<=90,`${p.id} intro length ${words} outside 45–90`);
  if(p.source==="published catalog description")assert.equal(p.text,book.description);
 }
