@@ -7,7 +7,7 @@
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
-const VERSION = "fa-offline-ed3a46cf6d3990a5-brownie-cover-v2";
+const VERSION = "fa-offline-d00aaf3e081b0bd6";
 const HTML_CACHE = VERSION + "-pages";
 const ASSET_CACHE = VERSION + "-assets";
 const ORIGIN = self.location.origin;
@@ -26,6 +26,7 @@ const SHELL_ASSETS = [
   "app-navigation.css",
   "app-navigation.js",
   "apple-touch-icon.png",
+  "assets/covers/brownie-mcqueen-brownie-wars.jpg",
   "assets/extracted/148c2d6dcc1c35335db481a6.jpg",
   "assets/extracted/14a72ecc8d11573cb408771a.jpg",
   "assets/extracted/1b1c062c12ea984da26acbca.jpg",
@@ -35,7 +36,6 @@ const SHELL_ASSETS = [
   "assets/extracted/63a71f2604a1f4fc6366e93b.jpg",
   "assets/extracted/7240b75a15cb00b3381e99cf.jpg",
   "assets/extracted/8c5f2edd511b5efd01eb51de.jpg",
-  "assets/covers/brownie-mcqueen-brownie-wars.jpg",
   "assets/extracted/9c3ff23e5544612ced72ae51.jpg",
   "assets/extracted/b1fc06c804d69d4e8f802cf8.jpg",
   "assets/extracted/c370842cf99ee68952c7ede4.jpg",
