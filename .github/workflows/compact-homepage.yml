@@ -25,6 +25,22 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
+      - name: Restore original iPhone Home Screen artwork
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          page = Path("index.html")
+          artwork = Path("assets/fa-icon.jpg")
+          if not artwork.is_file():
+              raise SystemExit("Original icon artwork is missing; no changes made")
+          old = '<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />'
+          restored = '<link rel="apple-touch-icon" href="assets/fa-icon.jpg" />'
+          text = page.read_text(encoding="utf-8")
+          if text.count(old) == 1:
+              page.write_text(text.replace(old, restored, 1), encoding="utf-8")
+          elif text.count(restored) != 1:
+              raise SystemExit("Unexpected Apple icon markup; no changes made")
+          PY
       - name: Extract resources and verify publication preservation
         run: python3 scripts/split_homepage.py
       - name: Check JavaScript syntax
