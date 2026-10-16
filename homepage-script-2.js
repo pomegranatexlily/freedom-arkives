@@ -54,6 +54,7 @@
         books.forEach(function (book) {
           var card = make("article", "catalog-book");
           var cover = make("img", "catalog-cover");
+          if (book.coverShape === "square") cover.classList.add("catalog-cover-square");
           cover.src = book.cover;
           cover.alt = "Book cover for " + book.title + " by " + book.author;
           cover.loading = "eager";
