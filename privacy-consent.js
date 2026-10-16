@@ -62,7 +62,8 @@ function init(){
   var style=document.createElement("link");
   style.rel="stylesheet";style.href=stylesUrl;
   document.head.appendChild(style);
-  var slot=document.querySelector(".site-head .nav .fa-menu-links") ||
+  var slot=document.querySelector("[data-site-settings-slot]") ||
+    document.querySelector(".site-head .nav .fa-menu-links") ||
     document.querySelector(".site-head .nav") ||
     document.querySelector("header.top") ||
     document.querySelector(".top") ||
