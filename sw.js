@@ -7,7 +7,7 @@
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
-const VERSION = "fa-offline-2026-10-13-v1";
+const VERSION = "fa-offline-2026-10-16-v1";
 const HTML_CACHE = VERSION + "-pages";
 const ASSET_CACHE = VERSION + "-assets";
 const ORIGIN = self.location.origin;
@@ -18,7 +18,7 @@ const SHELL_PAGES = [
   "workshop/nurah/", "workshop/registry/"
 ];
 const SHELL_ASSETS = [
-  "privacy-consent.js", "offline-register.js",
+  "privacy-consent.js", "privacy-consent.css", "offline-register.js",
   "assets/fa-article-fallback.jpg", "assets/fa-icon.jpg",
   "assets/fa-hero.jpg", "favicon-32.png", "icon-192.png",
   "icon-512.png", "apple-touch-icon.png", "social-preview.png",
