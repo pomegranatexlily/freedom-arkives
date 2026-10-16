@@ -67,12 +67,10 @@
           trigger.setAttribute("data-book", book.id);
           trigger.setAttribute("aria-label", "View details for " + book.title);
           card.append(cover, order, title, author, formats, trigger);
-          if(book.id==="brownie-dream-bakery"){
-            var sampleLink=make("a","detail-trigger","Listen to free introduction →");
-            sampleLink.href="reader/?sample=brownie-dream-bakery";
-            sampleLink.setAttribute("aria-label","Listen to free promotional introduction for "+book.title);
-            card.appendChild(sampleLink);
-          }
+          var sampleLink=make("a","detail-trigger","Listen to free introduction →");
+          sampleLink.href="reader/?sample="+encodeURIComponent(book.id);
+          sampleLink.setAttribute("aria-label","Listen to free promotional introduction for "+book.title);
+          card.appendChild(sampleLink);
           bookGrid.appendChild(card);
         });
         bookCount.textContent = "14 books";
@@ -116,13 +114,11 @@
           related.appendChild(relatedLink);
           editions.appendChild(related);
         }
-        if(book.id==="brownie-dream-bakery"){
-          var previewRow=make("div","edition-row");
-          previewRow.append(make("strong","","Free listening preview"),make("span","","Promotional introduction — not a full book chapter"));
-          var previewLink=make("a","","Listen to free introduction →");
-          previewLink.href="reader/?sample=brownie-dream-bakery";
-          previewRow.appendChild(previewLink);editions.appendChild(previewRow);
-        }
+        var previewRow=make("div","edition-row");
+        previewRow.append(make("strong","","Free listening introduction"),make("span","","Promotional catalog copy — not a book excerpt"));
+        var previewLink=make("a","","Listen to free introduction →");
+        previewLink.href="reader/?sample="+encodeURIComponent(book.id);
+        previewRow.appendChild(previewLink);editions.appendChild(previewRow);
         copy.appendChild(editions);
         grid.append(cover, copy);
         bookDetail.append(back, grid);
