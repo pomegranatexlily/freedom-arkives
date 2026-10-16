@@ -1,0 +1,28 @@
+/* Prevent blurry or incorrectly cropped book-cover regressions. */
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const path=require("node:path");
+const base=path.resolve(__dirname,"..");
+const html=fs.readFileSync(path.join(base,"index.html"),"utf8");
+const match=html.match(/<script type="application\/json" id="catalogData">([\s\S]*?)<\/script>/);
+assert.ok(match,"Catalog JSON must be present");
+const books=JSON.parse(match[1]).books;
+assert.equal(books.length,14,"Preserve all 14 book listings");
+const brownie=books.find(b=>b.id==="brownie-mcqueen-brownie-wars");
+assert.ok(brownie,"Brownie Wars catalog entry must remain");
+assert.equal(brownie.cover,"assets/covers/brownie-mcqueen-brownie-wars.jpg");
+assert.equal(brownie.coverShape,"square");
+const bytes=fs.readFileSync(path.join(base,brownie.cover));
+assert.ok(bytes.length>150000,"High-resolution cover must not regress to a thumbnail");
+assert.equal(bytes[0],0xff);assert.equal(bytes[1],0xd8);
+assert.equal(bytes[bytes.length-2],0xff);assert.equal(bytes[bytes.length-1],0xd9);
+const js=fs.readFileSync(path.join(base,"homepage-script-2.js"),"utf8");
+new Function(js);
+assert.ok(js.includes('if (book.coverShape === "square") cover.classList.add("catalog-cover-square");'),"Square shape marker");
+assert.equal((js.match(/cover.src = book.cover;/g)||[]).length,2,"Library and details use catalog cover");
+const css=fs.readFileSync(path.join(base,"homepage-style-1.css"),"utf8");
+assert.ok(css.includes('.catalog-cover.catalog-cover-square { aspect-ratio: 1 / 1; object-fit: contain; }'),"Avoid square-cover cropping");
+const sw=fs.readFileSync(path.join(base,"sw.js"),"utf8");
+assert.ok(sw.includes('"assets/covers/brownie-mcqueen-brownie-wars.jpg"'),"Cover cached offline");
+console.log("PASS: exact catalog high-res image, square layout, book details, cache and all 14 titles");
