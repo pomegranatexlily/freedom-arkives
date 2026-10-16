@@ -188,6 +188,8 @@
     .book-shelf { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 18px; }
     .catalog-book { min-width: 0; display: flex; flex-direction: column; }
     .catalog-cover { aspect-ratio: 2 / 3; width: 100%; object-fit: cover; border: 1px solid var(--strong-line); background: var(--paper-2); box-shadow: 8px 10px 0 color-mix(in srgb, var(--ink) 10%, transparent); }
+    /* Preserve square illustrated covers while ordinary paperbacks keep their taller layout. */
+    .catalog-cover.catalog-cover-square { aspect-ratio: 1 / 1; object-fit: contain; }
     .catalog-book .order { display: block; margin-top: 20px; color: var(--copper); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
     .catalog-book h3 { margin-top: 8px; font-size: 25px; line-height: 1.08; }
     .catalog-book .author { margin: 9px 0 0; color: var(--muted); font: 12px var(--mono); }
