@@ -34,3 +34,21 @@ assert.ok(reader.includes("function restorePersonalText()"));
 assert.ok(catalogJS.includes('reader/?sample="+encodeURIComponent(book.id)'));
 assert.ok(sw.includes('"reader/book-previews.js"'));
 console.log("PASS: 14 catalog-backed promotional intros, trusted purchase links, no manuscript excerpts, private position protection, valid JS.");
+
+// Reader header is navigation-only; privacy choices move into the collapsed
+// listening panel rather than competing with the back control on an iPhone.
+const privacyJS=fs.readFileSync(path.join(repo,"privacy-consent.js"),"utf8");
+const readerCSS=fs.readFileSync(path.join(repo,"reader","reader.css"),"utf8");
+assert.ok(page.includes('aria-label="Back to Freedom Arkives menu"'));
+assert.ok(page.includes('data-site-settings-slot'));
+assert.ok(page.indexOf('data-site-settings-slot')>page.indexOf('id="reader-settings"'));
+assert.ok(privacyJS.includes('document.querySelector("[data-site-settings-slot]")'));
+assert.ok(!readerCSS.includes('.top>.fa-site-settings'));
+assert.ok(readerCSS.includes('.reader-privacy-slot .fa-site-settings'));
+// The now-playing title must use the actual selected book title, not the
+// chapter's generic description. Confirm that all IDs still deep-link.
+assert.ok(reader.includes('$("track-title").textContent=previewMode?doc.title.replace'));
+assert.ok(reader.includes('title:item.title+" — Free Introduction"'));
+assert.ok(reader.includes('PREVIEWS.find(function(item){return item.id===sampleId;}'));
+assert.ok(readerCSS.includes('-webkit-line-clamp:2'));
+console.log("PASS: header navigation, reader privacy placement, full now-playing titles for all 14 selections.");
