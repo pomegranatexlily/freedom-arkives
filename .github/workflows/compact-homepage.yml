@@ -83,6 +83,7 @@ jobs:
           node --check reader/reader.js
           node --check reader/book-previews.js
           node scripts/test_reader_previews.js
+          node scripts/test_book_cover.js
           for file in homepage-script-*.js; do
             [ ! -f "$file" ] || node --check "$file"
           done
