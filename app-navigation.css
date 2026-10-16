@@ -1,0 +1,17 @@
+/* Existing sections remain readable when JavaScript is unavailable. */
+.fa-section-navigation [data-fa-view-hidden]{display:none!important}
+.fa-section-navigation .site-head .nav>a{display:none!important}
+#fa-section-menu{position:relative;margin-left:auto;flex-shrink:0;color:var(--ink,#f5f1e7)}
+#fa-section-menu summary{cursor:pointer;list-style:none;border:1px solid currentColor;border-radius:10px;padding:10px 14px;min-height:44px;box-sizing:border-box;font:600 15px/1.5 system-ui,sans-serif}
+#fa-section-menu summary::-webkit-details-marker{display:none}
+.fa-menu-links{position:absolute;right:0;top:calc(100% + 10px);z-index:1000;display:flex;flex-direction:column;width:min(320px,calc(100vw - 32px));max-height:70dvh;overflow:auto;padding:8px;background:var(--paper,#161c17);border:1px solid currentColor;border-radius:12px;box-shadow:0 12px 36px #0004}
+.fa-menu-links a{display:block!important;padding:12px 14px;min-height:44px;box-sizing:border-box;color:inherit;text-decoration:none;border-radius:7px;white-space:normal}
+.fa-menu-links a:hover,.fa-menu-links a[aria-current]{background:#8882}
+.fa-home{max-width:1050px;margin:0 auto;padding:clamp(28px,6vw,72px) 20px}
+.fa-home h1{font-size:clamp(32px,7vw,64px);line-height:1.1;margin:0 0 20px}
+.fa-home>p{font-size:18px;line-height:1.6;max-width:650px}
+.fa-home-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px;margin-top:30px}
+.fa-home-links a{display:flex;align-items:center;min-height:76px;padding:20px;border:1px solid currentColor;border-radius:12px;color:inherit;text-decoration:none;font:600 17px/1.4 system-ui,sans-serif}
+.fa-home-links a:hover{background:#8882}
+#fa-section-menu summary:focus-visible,.fa-menu-links a:focus-visible,.fa-home-links a:focus-visible{outline:3px solid #bf9354;outline-offset:3px}
+@media(max-width:600px){.fa-section-navigation .site-head .nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.fa-home{padding:30px 16px}}

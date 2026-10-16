@@ -1,0 +1,52 @@
+name: Split and compact Freedom Arkives homepage
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/split_homepage.py
+      - app-navigation.js
+      - app-navigation.css
+      - .github/workflows/compact-homepage.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: freedom-arkives-publishing
+  cancel-in-progress: false
+jobs:
+  compact:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Extract resources and verify publication preservation
+        run: python3 scripts/split_homepage.py
+      - name: Check JavaScript syntax
+        run: |
+          node --check app-navigation.js
+          for file in homepage-script-*.js; do
+            [ ! -f "$file" ] || node --check "$file"
+          done
+      - name: Publish generated files to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js assets/extracted
+          find . -maxdepth 1 -type f \( -name 'homepage-style-*.css' -o -name 'homepage-script-*.js' \) -exec git add -- {} +
+          if ! git diff --cached --quiet; then
+            git commit -m "Compact homepage: externalize assets and enable section navigation"
+            git push origin HEAD:main
+          fi
+      - name: Upload the generated site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Deploy generated site to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
