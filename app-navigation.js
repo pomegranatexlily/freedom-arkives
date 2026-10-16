@@ -1,4 +1,4 @@
-/* Freedom Arkives: progressive-enhancement section navigation. */
+/* Freedom Arkives: corner-menu navigation; preserve the original home screen. */
 (function () {
   "use strict";
   function init() {
@@ -14,71 +14,48 @@
       container = panels[0]; panels = children(container);
     }
     if (panels.length < 2) return;
+    var home = panels.find(function (panel) { return panel.id === "home" || panel.querySelector("#home"); });
+    if (!home) return;
+    var labels = {home:"Home", ecosystem:"Ecosystem", library:"Books", articles:"Articles", mission:"The Mission", doctrine:"Doctrine", capacities:"Capacities", assignment:"Mission Finder", "for-whom":"Who This Is For", connect:"Connect"};
     var oldLinks = Array.from(slot.querySelectorAll('a[href^="#"]'));
-    var records = panels.map(function (panel, i) {
+    var records = panels.map(function (panel) {
       var matching = oldLinks.find(function (a) {
         var target = document.getElementById(a.hash.slice(1));
         return target && (panel === target || panel.contains(target));
       });
       var heading = panel.querySelector("h1,h2");
-      var label = matching ? matching.textContent.trim() : heading ? heading.textContent.trim() : "Section " + (i + 1);
-      if (label.length > 65) label = label.slice(0, 62) + "…";
-      var route = panel.id;
-      if (!route) { route = "fa-section-" + (i + 1); panel.id = route; }
-      return {panel:panel, label:label, hash:"#" + route};
+      var label = labels[panel.id] || (matching ? matching.textContent.trim() : heading ? heading.textContent.trim() : "");
+      return {panel:panel, label:label, hash:panel.id ? "#" + panel.id : ""};
     });
-    var home = document.createElement("section");
-    home.className = "fa-home";
-    home.id = "fa-home";
-    var title = document.createElement("h1"); title.textContent = "Freedom Arkives"; home.appendChild(title);
-    var intro = document.createElement("p"); intro.textContent = "Books, articles, research, and frameworks. Choose a section to explore."; home.appendChild(intro);
-    var cards = document.createElement("nav"); cards.className = "fa-home-links"; cards.setAttribute("aria-label", "Explore Freedom Arkives"); home.appendChild(cards);
     var menu = document.createElement("details"); menu.id = "fa-section-menu";
-    var toggle = document.createElement("summary"); toggle.textContent = "☰ Menu"; menu.appendChild(toggle);
+    var toggle = document.createElement("summary"); toggle.textContent = "☰"; toggle.setAttribute("aria-label", "Open navigation menu"); menu.appendChild(toggle);
     var list = document.createElement("nav"); list.className = "fa-menu-links"; list.setAttribute("aria-label", "App sections"); menu.appendChild(list);
-    function link(label, hash, parent) {
-      var a = document.createElement("a"); a.href = hash; a.textContent = label; parent.appendChild(a); return a;
-    }
-    link("Home", "#fa-home", list);
-    records.forEach(function (r) { link(r.label, r.hash, list); link(r.label, r.hash, cards); });
-    Array.from(slot.querySelectorAll("a[href]")).filter(function (a) { return a.getAttribute("href").charAt(0) !== "#"; }).forEach(function (a) {
-      var copy = a.cloneNode(true); list.appendChild(copy);
+    records.forEach(function (r) {
+      if (!r.label || !r.hash) return;
+      var a = document.createElement("a"); a.href = r.hash; a.textContent = r.label; list.appendChild(a);
     });
+    Array.from(slot.querySelectorAll("a[href]")).filter(function (a) { return a.getAttribute("href").charAt(0) !== "#"; }).forEach(function (a) { list.appendChild(a.cloneNode(true)); });
     slot.appendChild(menu);
-    container.insertBefore(home, container.firstChild);
-    var initialHidden = records.filter(function (r) { return r.panel.hidden; });
-    function targetPanel(hash) {
-      if (!hash || hash === "#fa-home") return null;
-      var id;
-      try { id = decodeURIComponent(hash.slice(1)); } catch (_) { id = hash.slice(1); }
-      var target = document.getElementById(id);
-      if (!target && id.indexOf("book-") === 0) {
-        target = Array.from(main.querySelectorAll("[id]")).find(function (el) { return /book.*detail/i.test(el.id); });
-        if (!target) return undefined;
-      }
-      if (!target) return undefined;
-      return records.find(function (r) { return r.panel === target || r.panel.contains(target); });
-    }
     function render(scroll) {
       var hash = location.hash;
-      var active = targetPanel(hash);
-      var fallback = active === undefined;
-      home.toggleAttribute("data-fa-view-hidden", !!active || fallback);
-      records.forEach(function (r) { r.panel.toggleAttribute("data-fa-view-hidden", !fallback && r !== active); });
-      if (fallback) initialHidden.forEach(function (r) { if (!r.panel.hidden) r.panel.removeAttribute("data-fa-view-hidden"); });
+      var id;
+      try { id = decodeURIComponent(hash.slice(1)); } catch (_) { id = hash.slice(1); }
+      var target = (!id || id === "fa-home") ? home : document.getElementById(id);
+      if (!target && id.indexOf("book-") === 0) target = document.getElementById("bookDetail");
+      var active = target ? records.find(function (r) { return r.panel === target || r.panel.contains(target); }) : null;
+      records.forEach(function (r) { r.panel.toggleAttribute("data-fa-view-hidden", !!active && r !== active); });
       list.querySelectorAll("a").forEach(function (a) {
-        if ((active && a.hash === active.hash) || (!active && !fallback && a.hash === "#fa-home")) a.setAttribute("aria-current", "page");
-        else a.removeAttribute("aria-current");
+        if (active && a.hash === active.hash) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
       });
       menu.open = false;
-      if (scroll && !fallback) {
-        var heading = (active ? active.panel : home).querySelector("h1,h2");
+      if (scroll && active) {
+        var heading = active.panel.querySelector("h1,h2");
         if (heading) { heading.setAttribute("tabindex", "-1"); heading.focus({preventScroll:true}); }
-        if (active && hash !== active.hash) {
-          var target = document.getElementById(hash.slice(1)); if (target) target.scrollIntoView({block:"start"});
-        } else window.scrollTo({top:0, behavior:"auto"});
+        if (hash && active.hash !== hash && target && id !== "fa-home") target.scrollIntoView({block:"start"});
+        else window.scrollTo({top:0, behavior:"auto"});
       }
     }
+    list.addEventListener("click", function (event) { if (event.target.closest("a")) menu.open = false; });
     document.addEventListener("keydown", function (event) { if (event.key === "Escape" && menu.open) { menu.open = false; toggle.focus(); } });
     document.addEventListener("click", function (event) { if (menu.open && !menu.contains(event.target)) menu.open = false; });
     window.addEventListener("hashchange", function () { render(true); });
