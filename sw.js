@@ -7,7 +7,7 @@
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
-const VERSION = "fa-offline-2026-10-16-v1";
+const VERSION = "fa-offline-1e07ce9be04d12b1";
 const HTML_CACHE = VERSION + "-pages";
 const ASSET_CACHE = VERSION + "-assets";
 const ORIGIN = self.location.origin;
@@ -18,11 +18,36 @@ const SHELL_PAGES = [
   "workshop/nurah/", "workshop/registry/"
 ];
 const SHELL_ASSETS = [
-  "privacy-consent.js", "privacy-consent.css", "offline-register.js",
-  "assets/fa-article-fallback.jpg", "assets/fa-icon.jpg",
-  "assets/fa-hero.jpg", "favicon-32.png", "icon-192.png",
-  "icon-512.png", "apple-touch-icon.png", "social-preview.png",
-  "manifest.webmanifest"
+  "app-navigation.css",
+  "app-navigation.js",
+  "apple-touch-icon.png",
+  "assets/extracted/148c2d6dcc1c35335db481a6.jpg",
+  "assets/extracted/14a72ecc8d11573cb408771a.jpg",
+  "assets/extracted/1b1c062c12ea984da26acbca.jpg",
+  "assets/extracted/1d1716eae9fee6b0afddb10a.jpg",
+  "assets/extracted/3edbffb22fcd37014feb1d4f.jpg",
+  "assets/extracted/445017c17c6f529b26bf1e23.jpg",
+  "assets/extracted/63a71f2604a1f4fc6366e93b.jpg",
+  "assets/extracted/7240b75a15cb00b3381e99cf.jpg",
+  "assets/extracted/8c5f2edd511b5efd01eb51de.jpg",
+  "assets/extracted/9c3ff23e5544612ced72ae51.jpg",
+  "assets/extracted/b1fc06c804d69d4e8f802cf8.jpg",
+  "assets/extracted/c370842cf99ee68952c7ede4.jpg",
+  "assets/extracted/f8b0b3a3b75e8588a2aa6fb2.jpg",
+  "assets/fa-article-fallback.jpg",
+  "assets/fa-hero.jpg",
+  "assets/fa-icon.jpg",
+  "favicon-32.png",
+  "homepage-script-1.js",
+  "homepage-script-2.js",
+  "homepage-style-1.css",
+  "icon-192.png",
+  "icon-512.png",
+  "manifest.webmanifest",
+  "offline-register.js",
+  "privacy-consent.css",
+  "privacy-consent.js",
+  "social-preview.png"
 ];
 function urlFor(path) { return new URL(path, BASE).href; }
 function inScope(url) {
