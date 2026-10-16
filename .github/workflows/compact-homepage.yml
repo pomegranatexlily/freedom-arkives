@@ -81,6 +81,8 @@ jobs:
         run: |
           node --check app-navigation.js
           node --check reader/reader.js
+          node --check reader/book-previews.js
+          node scripts/test_reader_previews.js
           for file in homepage-script-*.js; do
             [ ! -f "$file" ] || node --check "$file"
           done
