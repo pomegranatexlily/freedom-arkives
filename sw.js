@@ -55,6 +55,7 @@ const SHELL_ASSETS = [
   "privacy-consent.css",
   "privacy-consent.js",
   "reader/reader.css",
+  "reader/book-previews.js",
   "reader/reader.js",
   "social-preview.png"
 ];
