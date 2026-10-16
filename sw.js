@@ -7,7 +7,7 @@
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
-const VERSION = "fa-offline-5658f1f967b16241";
+const VERSION = "fa-offline-85247f824b345e0b";
 const HTML_CACHE = VERSION + "-pages";
 const ASSET_CACHE = VERSION + "-assets";
 const ORIGIN = self.location.origin;
@@ -54,8 +54,8 @@ const SHELL_ASSETS = [
   "offline-register.js",
   "privacy-consent.css",
   "privacy-consent.js",
-  "reader/reader.css",
   "reader/book-previews.js",
+  "reader/reader.css",
   "reader/reader.js",
   "social-preview.png"
 ];
