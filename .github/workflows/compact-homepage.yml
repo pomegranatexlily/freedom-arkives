@@ -4,9 +4,12 @@ on:
     branches: [main]
     paths:
       - scripts/split_homepage.py
+      - scripts/publish_home_polish.py
       - scripts/add_brownie_wars.py
       - app-navigation.js
       - app-navigation.css
+      - privacy-consent.js
+      - assets/fonts/**
       - reader/**
       - .github/workflows/compact-homepage.yml
   workflow_dispatch:
@@ -45,6 +48,8 @@ jobs:
           PY
       - name: Add the screenshot-confirmed fourteenth book
         run: python3 scripts/add_brownie_wars.py
+      - name: Apply approved homepage polish and package licensed font
+        run: python3 scripts/publish_home_polish.py
       - name: Integrate reader menu link and offline resources
         run: |
           python3 - <<'PY'
@@ -83,10 +88,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html sw.js assets/extracted app-navigation.js
+          git add index.html sw.js assets/extracted assets/fonts app-navigation.js app-navigation.css privacy-consent.js
           find . -maxdepth 1 -type f \( -name 'homepage-style-*.css' -o -name 'homepage-script-*.js' \) -exec git add -- {} +
           if ! git diff --cached --quiet; then
-            git commit -m "Publish reader navigation and refreshed offline resources"
+            git commit -m "Publish approved Schibsted homepage controls and refreshed assets"
             git push origin HEAD:main
           fi
       - name: Upload the generated site
