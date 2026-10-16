@@ -7,6 +7,7 @@ on:
       - scripts/add_brownie_wars.py
       - app-navigation.js
       - app-navigation.css
+      - reader/**
       - .github/workflows/compact-homepage.yml
   workflow_dispatch:
 permissions:
@@ -44,11 +45,37 @@ jobs:
           PY
       - name: Add the screenshot-confirmed fourteenth book
         run: python3 scripts/add_brownie_wars.py
+      - name: Integrate reader menu link and offline resources
+        run: |
+          python3 - <<'PY'
+          import json, re
+          from pathlib import Path
+          nav = Path("app-navigation.js")
+          text = nav.read_text(encoding="utf-8")
+          marker = "    slot.appendChild(menu);"
+          link = '    var readerLink = document.createElement("a"); readerLink.href = "reader/"; readerLink.textContent = "Read & Listen"; list.appendChild(readerLink);'
+          if link not in text:
+              if text.count(marker) != 1:
+                  raise SystemExit("Unexpected menu structure; no menu changes made")
+              text = text.replace(marker, link + "\n" + marker, 1)
+          nav.write_text(text, encoding="utf-8")
+          worker = Path("sw.js")
+          text = worker.read_text(encoding="utf-8")
+          for name, additions in [("SHELL_PAGES", ["reader/"]), ("SHELL_ASSETS", ["reader/reader.css", "reader/reader.js"])]:
+              pattern = r"const " + name + r" = \[(.*?)\];"
+              match = re.search(pattern, text, re.S)
+              if not match:
+                  raise SystemExit("Missing offline cache declaration")
+              entries = list(dict.fromkeys(json.loads("[" + match.group(1) + "]") + additions))
+              text = text[:match.start()] + "const " + name + " = " + json.dumps(entries, indent=2) + ";" + text[match.end():]
+          worker.write_text(text, encoding="utf-8")
+          PY
       - name: Extract resources and verify publication preservation
         run: python3 scripts/split_homepage.py
       - name: Check JavaScript syntax
         run: |
           node --check app-navigation.js
+          node --check reader/reader.js
           for file in homepage-script-*.js; do
             [ ! -f "$file" ] || node --check "$file"
           done
@@ -56,10 +83,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html sw.js assets/extracted
+          git add index.html sw.js assets/extracted app-navigation.js
           find . -maxdepth 1 -type f \( -name 'homepage-style-*.css' -o -name 'homepage-script-*.js' \) -exec git add -- {} +
           if ! git diff --cached --quiet; then
-            git commit -m "Compact homepage: externalize assets and enable section navigation"
+            git commit -m "Publish reader navigation and refreshed offline resources"
             git push origin HEAD:main
           fi
       - name: Upload the generated site

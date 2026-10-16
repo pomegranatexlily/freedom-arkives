@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#101b16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Freedom Arkives">
+<link rel="apple-touch-icon" href="../assets/fa-icon.jpg">
+<link rel="manifest" href="../manifest.webmanifest">
+<title>Read & Listen — Freedom Arkives</title>
+<link rel="stylesheet" href="reader.css">
+<script src="../privacy-consent.js" defer></script>
+<script src="../offline-register.js" defer></script>
+<script src="reader.js" defer></script>
+</head>
+<body>
+<header class="top"><a href="../" aria-label="Back to Freedom Arkives">←</a><strong>Read & Listen</strong></header>
+<main>
+<details id="import-panel" open>
+<summary>Open text</summary>
+<label>Title<input id="input-title" maxlength="160" placeholder="Book or chapter title"></label>
+<label>Text<textarea id="input-text" rows="7" placeholder="Paste text to read aloud"></textarea></label>
+<div class="import-actions"><button id="load-text" type="button">Open pasted text</button><label class="file-button">Choose file<input id="file" type="file" accept=".txt,.md,.json,text/plain,text/markdown,application/json"></label></div>
+<p class="note">Imports: TXT, Markdown, or JSON with a title and chapters containing title/text. PDF and scanned-image import are not included yet. Text is saved in this browser when storage is available, not uploaded by this app.</p>
+</details>
+<section class="reading" aria-label="Reading area"><h1 id="document-title">Your reading space</h1><label id="chapter-label" hidden>Chapter<select id="chapter"></select></label><div id="reading-text"><p>Open your text, choose a voice, and press Play.</p></div></section>
+<details class="preferences"><summary>Voice & reading settings</summary><label>Voice<select id="voice"><option value="">Device default</option></select></label><label>Speed<select id="rate"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="1.75">1.75×</option><option value="2">2×</option></select></label><label>Text size<input id="font-size" type="range" min="16" max="28" value="20"></label><button id="forget" type="button">Clear saved text</button><p class="note">Voices come from your device/browser. Online voices require your confirmation before text is spoken. Background and lock-screen playback are not guaranteed. This is text-to-speech, not a recorded audiobook.</p></details>
+<p id="status" role="status" aria-live="polite">Ready for text.</p>
+</main>
+<footer class="player" aria-label="Read-aloud player"><div class="track"><span id="track-title">No text loaded</span><output id="position">0 / 0</output></div><label class="seek-label">Reading position<input id="seek" type="range" min="0" max="0" value="0" disabled></label><div class="transport"><button id="previous" type="button" aria-label="Previous passage" disabled>⏮</button><button id="play" type="button" disabled>Play</button><button id="next" type="button" aria-label="Next passage" disabled>⏭</button><button id="save" type="button" disabled>Save place</button></div></footer>
+</body>
+</html>
