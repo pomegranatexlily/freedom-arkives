@@ -7,7 +7,7 @@
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
-const VERSION = "fa-offline-2414f63a91867d44";
+const VERSION = "fa-offline-cbb53b9231b6d937";
 const HTML_CACHE = VERSION + "-pages";
 const ASSET_CACHE = VERSION + "-assets";
 const ORIGIN = self.location.origin;
