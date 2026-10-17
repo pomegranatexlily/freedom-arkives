@@ -54,3 +54,7 @@ jobs:
           console.log('Parsed '+jsonCount+' JSON/manifest files and '+htmlCount+' HTML files; checked '+scriptCount+' local scripts.');
           if (remoteCount) console.log(remoteCount+' URL/absolute-path script references require separate deployment and supply-chain review.');
           NODE
+      - name: Verify reader/catalog and private progress behavior
+        run: node scripts/test_reader_previews.js
+      - name: Verify high-resolution published book covers
+        run: node scripts/test_book_cover.js
