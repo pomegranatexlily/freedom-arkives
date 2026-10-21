@@ -74,7 +74,7 @@
           card.appendChild(sampleLink);
           bookGrid.appendChild(card);
         });
-        bookCount.textContent = "14 books";
+        bookCount.textContent = books.length + (books.length === 1 ? " book" : " books");
         bookEmpty.hidden = books.length !== 0;
       }
 
@@ -100,8 +100,8 @@
         var editions = make("div", "edition-list");
         book.editions.forEach(function (edition) {
           var row = make("div", "edition-row");
-          var label = make("strong", "", edition.format + " · List price " + edition.price);
-          var asin = make("span", "", "ASIN " + edition.asin);
+          var label = make("strong", "", (edition.label || edition.format) + (edition.price ? " · List price " + edition.price : ""));
+          var asin = make("span", "", edition.asin ? "ASIN " + edition.asin : "Official Amazon listing");
           var link = make("a", "", "Check current price on Amazon →");
           link.href = edition.url;
           row.append(label, asin, link);

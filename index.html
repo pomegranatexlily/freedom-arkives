@@ -313,17 +313,17 @@
           <div class="section-head">
             <p class="section-kicker">The library</p>
             <div>
-              <h2>Fourteen books. One living catalog.</h2>
+              <h2>The published collection. One living catalog.</h2>
               <p class="section-intro">Browse the published Freedom Arkives library by title, author, or format.</p>
             </div>
           </div>
           <div class="catalog-tools" role="search" aria-label="Search and filter the book catalog">
             <label class="search-field"><span>Search the library</span><input id="bookSearch" type="search" placeholder="Title, author, subject…" autocomplete="off"></label>
             <label><span>Format</span><select id="bookFormat"><option value="all">All formats</option><option value="Hardcover">Hardcover</option><option value="Kindle">Kindle</option><option value="Paperback">Paperback</option></select></label>
-            <div class="result-count" id="bookCount" aria-live="polite">14 books</div>
+            <div class="result-count" id="bookCount" aria-live="polite">15 books</div>
           </div>
           <div class="library-note">
-            <p>Titles, pen names, formats, ASINs, and list prices reflect the supplied catalog. Amazon may show a different current price</p>
+            <p>Catalog details reflect available publication information; current prices and additional product details are provided by Amazon</p>
             <a href="https://linktr.ee/FreedomArkives">All links — FreedomArkives →</a>
           </div>
           <div class="book-shelf" id="bookGrid"></div>
@@ -387,8 +387,8 @@
     ==================== PUBLICATION CATALOG — EDIT HERE ====================
     TO ADD A BOOK: duplicate one complete object inside "books", give it a
     unique "id", and update its title, author, cover path, description, role,
-    subjects, series, and editions. Each edition needs format, price, ASIN,
-    and the exact official Amazon URL. Add "isbn" only when it is confirmed.
+    subjects, series, and editions. Each edition needs format and URL; include price and ASIN when verified.
+    Add "isbn" only when it is confirmed.
     TO ADD AN ARTICLE: duplicate one complete object inside "articles", give it
     a unique "id", then update title, excerpt, date, dateLabel, tags, thumbnail,
     and the exact official article URL. Keep commas between adjacent objects.
@@ -616,6 +616,40 @@
             ],
             "cover": "assets/covers/brownie-mcqueen-brownie-wars.jpg",
             "coverShape": "square"
+      },
+      {
+        "id": "oustory-covenant-bible",
+        "title": "Oustory Covenant Bible",
+        "author": "Dr. Nachamasha Yahsharala",
+        "series": "Oustory Bible Collection · CPT–APE",
+        "cover": "https://pomegranatexlily.github.io/cpt-bible-app/assets/oustory-poster-icon-512.png",
+        "order": 15,
+        "readingRole": "Read and preserve covenant Scripture",
+        "description": "The Oustory Covenant Bible in print. Choose a published Amazon listing below. The volume associated with each Amazon link has not yet been verified.",
+        "subjects": [
+          "Scripture",
+          "Covenant",
+          "Bible",
+          "Translation"
+        ],
+        "editions": [
+          {
+            "format": "Hardcover",
+            "label": "Print edition · Amazon listing 1",
+            "price": null,
+            "asin": null,
+            "url": "https://a.co/d/0fkMW9qz"
+          },
+          {
+            "format": "Hardcover",
+            "label": "Print edition · Amazon listing 2",
+            "price": null,
+            "asin": null,
+            "url": "https://a.co/d/09jGa0jc"
+          }
+        ],
+        "relatedUrl": "https://pomegranatexlily.github.io/cpt-bible-app/",
+        "relatedLabel": "Read Oustory online"
       }
     ],
     "articles": [
