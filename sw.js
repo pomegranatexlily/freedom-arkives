@@ -7,7 +7,7 @@
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
-const VERSION = "fa-offline-b9991d5e02df2444";
+const VERSION = "fa-offline-official-hebrew-20261023";
 const HTML_CACHE = VERSION + "-pages";
 const ASSET_CACHE = VERSION + "-assets";
 const ORIGIN = self.location.origin;
@@ -16,6 +16,7 @@ const OFFLINE_URL = new URL("offline.html", BASE).href;
 const SHELL_PAGES = [
   "./",
   "privacy.html",
+  "hebrew.html",
   "workshop/",
   "workshop/engine/",
   "workshop/nurah/",
