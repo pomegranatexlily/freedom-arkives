@@ -117,6 +117,22 @@ var previews=[
     "source": "catalog-themed introduction",
     "purchaseUrl": "https://www.amazon.com/dp/B0HN63YKVG",
     "purchaseFormat": "Amazon listing"
+  },
+  {
+    "id": "oustory-covenant-bible-volume-i",
+    "title": "Oustory Covenant Bible — Volume I: The Law, Writings & Prophets",
+    "text": "Volume I of the Oustory Covenant Bible presents The Law, Writings & Prophets as the first hardcover in the Oustory Bible Collection. This free introduction identifies its published scope and places the volume within the CPT–APE project. The book is offered as an official printed edition for readers seeking the covenant text in book form. This is a catalog-based orientation only, not a reading from the book or a reproduction of its pages.",
+    "source": "catalog-themed introduction",
+    "purchaseUrl": "https://a.co/d/0fkMW9qz",
+    "purchaseFormat": "Hardcover"
+  },
+  {
+    "id": "oustory-covenant-bible-volume-ii",
+    "title": "Oustory Covenant Bible — Volume II: The Prophetic, Historical, & Wisdom Writings",
+    "text": "Volume II of the Oustory Covenant Bible brings together The Prophetic, Historical, & Wisdom Writings in the second official hardcover volume. This free introduction highlights the published title, its place alongside Volume I, and its role in the Oustory Bible Collection. Readers can use this orientation to identify the correct print volume before visiting its hardcover listing. It contains no passages from the published manuscript and does not substitute for the book itself.",
+    "source": "catalog-themed introduction",
+    "purchaseUrl": "https://a.co/d/09jGa0jc",
+    "purchaseFormat": "Hardcover"
   }
 ];
 if(root)root.FreedomBookPreviews=previews;
