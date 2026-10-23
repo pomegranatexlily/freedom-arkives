@@ -9,7 +9,7 @@ const home=fs.readFileSync(path.join(repo,"index.html"),"utf8");
 const match=home.match(/<script type="application\/json" id="catalogData">([\s\S]*?)<\/script>/);
 assert.ok(match,"Catalog JSON present");
 const books=JSON.parse(match[1]).books;
-assert.equal(books.length,14,"Expected 14 published catalog books");
+assert.equal(books.length,16,"Expected 16 published catalog books");
 assert.equal(previews.length,books.length,"A public intro for every listed book");
 assert.equal(new Set(previews.map(p=>p.id)).size,books.length,"Unique preview IDs");
 for(const [i,book] of books.entries()){
@@ -33,7 +33,7 @@ assert.ok(reader.includes('restoring||previewMode||write(DOC_KEY,doc)'));
 assert.ok(reader.includes("function restorePersonalText()"));
 assert.ok(catalogJS.includes('reader/?sample="+encodeURIComponent(book.id)'));
 assert.ok(sw.includes('"reader/book-previews.js"'));
-console.log("PASS: 14 catalog-backed promotional intros, trusted purchase links, no manuscript excerpts, private position protection, valid JS.");
+console.log("PASS: 16 catalog-backed promotional intros, trusted purchase links, no manuscript excerpts, private position protection, valid JS.");
 
 // Reader header is navigation-only; privacy choices move into the collapsed
 // listening panel rather than competing with the back control on an iPhone.
@@ -51,4 +51,4 @@ assert.ok(reader.includes('$("track-title").textContent=previewMode?doc.title.re
 assert.ok(reader.includes('title:item.title+" — Free Introduction"'));
 assert.ok(reader.includes('PREVIEWS.find(function(item){return item.id===sampleId;}'));
 assert.ok(readerCSS.includes('-webkit-line-clamp:2'));
-console.log("PASS: header navigation, reader privacy placement, full now-playing titles for all 14 selections.");
+console.log("PASS: header navigation, reader privacy placement, full now-playing titles for all 16 selections.");
