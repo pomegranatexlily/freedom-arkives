@@ -86,8 +86,10 @@ function speakPart(){
       if(!selectedVoice()){message("Samantha is unavailable. No other voice will be used.");return;}
       if(!consentForVoice())return;
       generation++;clearSpeechStartTimer();starting=false;
-      try{if(synth.speaking||synth.pending||synth.paused)synth.cancel();}
-      catch(_){playing=false;update();message("The speech engine could not reset. Press Play to retry.");return;}
+      // Do not call speechSynthesis.cancel() immediately before speak().
+      // WebKit/Safari 27 can cancel the newly queued utterance in this race.
+      // Every transition out of active playback already calls stop(), which cancels
+      // the previous queue before the next user-initiated Play action.
       playing=true;speakPart();
     }
     function seek(number){var resume=playing;stop();index=Math.max(0,Math.min(parts.length-1,Number(number)||0));offset=0;update();savePosition();if(resume)play();}
