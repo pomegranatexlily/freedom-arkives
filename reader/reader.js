@@ -133,7 +133,18 @@ $("save").addEventListener("click",function(){message(savePosition()?"Reading pl
 $("font-size").addEventListener("input",function(){document.documentElement.style.setProperty("--size",this.value+"px");savePreferences();});
 $("forget").addEventListener("click",function(){if(!window.confirm("Clear this reader's saved text and position from this browser?"))return;stop();try{localStorage.removeItem(DOC_KEY);localStorage.removeItem(POS_KEY);}catch(_){}doc=null;previewMode=false;parts=[];nodes=[];activeNode=null;$("reading-text").replaceChildren();$("document-title").textContent="Your reading space";$("track-title").textContent="No text loaded";$("chapter-label").hidden=true;$("input-text").value="";$("input-title").value="";$("import-panel").open=true;update();message("Saved text cleared.");});
 window.addEventListener("pagehide",function(){stop();});
-window.addEventListener("pageshow",function(){loadVoices();update();});
+function recoverSpeechAfterReturn(){
+  // iOS 26 has reported silent audio in installed Home Screen web apps after
+  // backgrounding/reopening. Reset stale Web Speech state without touching
+  // imported text, preferences, or saved reading position.
+  if(!document.hidden&&supported&&!playing){
+    try{if(synth.speaking||synth.pending||synth.paused)synth.cancel();}catch(_){}
+    utterance=null;starting=false;clearSpeechStartTimer();
+    loadVoices();update();
+  }
+}
+window.addEventListener("pageshow",recoverSpeechAfterReturn);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)recoverSpeechAfterReturn();});
 var preferences=read(PREF_KEY)||{};if(["0.75","1","1.25","1.5","1.75","2"].indexOf(preferences.rate)!==-1)$("rate").value=preferences.rate;var size=Math.max(16,Math.min(28,Number(preferences.size)||20));$("font-size").value=String(size);document.documentElement.style.setProperty("--size",size+"px");
 loadVoices();if(supported)synth.addEventListener("voiceschanged",loadVoices);var saved=read(DOC_KEY),position=read(POS_KEY),sampleId=(new URLSearchParams(window.location.search)).get("sample"),requestedPreview=PREVIEWS.find(function(item){return item.id===sampleId;})||null;if(requestedPreview)$("featured-book").value=requestedPreview.id;refreshPreviewInfo();if(saved&&!requestedPreview){try{openDocument(parseDocument(JSON.stringify(saved),"saved.json",""),position,true,false);}catch(_){loadPreview(selectedPreview());message("Saved text could not be opened. A public preview is available.");}}else{loadPreview(requestedPreview||PREVIEWS[0]);}if(!supported)message("This browser does not provide speech. You can still read text.");update();
 })();
