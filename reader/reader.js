@@ -19,7 +19,7 @@ function isSamantha(v){return !!v&&/^en(?:[-_]|$)/i.test(v.lang||"")&&/(^|[^a-z]
 if(typeof module!=="undefined"&&module.exports){module.exports={passages:passages,parseDocument:parseDocument,isSamantha:isSamantha};return;}
 var $=function(id){return document.getElementById(id);},synth=window.speechSynthesis,supported=!!(synth&&window.SpeechSynthesisUtterance);
 var doc=null,chapter=0,index=0,offset=0,parts=[],nodes=[],voices=[],playing=false,generation=0,utterance=null,activeNode=null,acceptedVoice=null,previewMode=false;
-var starting=false,speechStartTimer=null;
+var starting=false,speechStartTimer=null,cancelBarrier=false,cancelReleaseTimer=null;
 // Promotional catalog introductions only; the full manuscripts are never loaded from this data.
 var PREVIEWS=Array.isArray(window.FreedomBookPreviews)?window.FreedomBookPreviews:[];
 var DOC_KEY="fa.reader.document.v1",POS_KEY="fa.reader.position.v1",PREF_KEY="fa.reader.preferences.v1";
@@ -37,8 +37,17 @@ function update(){
   if(activeNode)activeNode.classList.remove("active");activeNode=nodes[index]||null;if(activeNode)activeNode.classList.add("active");
 }
 function clearSpeechStartTimer(){if(speechStartTimer!==null){clearTimeout(speechStartTimer);speechStartTimer=null;}}
-    function stop(){generation++;clearSpeechStartTimer();starting=false;playing=false;if(supported){try{synth.cancel();}catch(_){}}utterance=null;savePosition();update();}
-    function speechFailed(text){stop();message(text);}
+    function stop(){
+  var cancelNeeded=supported&&!!(utterance||playing||starting||synth.speaking||synth.pending);
+  generation++;clearSpeechStartTimer();starting=false;playing=false;
+  if(cancelNeeded){
+    cancelBarrier=true;if(cancelReleaseTimer!==null)clearTimeout(cancelReleaseTimer);
+    try{synth.cancel();}catch(_){}
+    cancelReleaseTimer=setTimeout(function(){cancelBarrier=false;cancelReleaseTimer=null;},0);
+  }
+  utterance=null;savePosition();update();
+}
+function speechFailed(text){stop();message(text);}
     function showChapter(number,startIndex,startOffset){
   chapter=Math.max(0,Math.min(doc.chapters.length-1,Number(number)||0));parts=passages(doc.chapters[chapter].text);index=Math.max(0,Math.min(parts.length-1,Number(startIndex)||0));offset=Math.max(0,Math.min(parts[index]?parts[index].text.length:0,Number(startOffset)||0));
   $("chapter").value=String(chapter);$("document-title").textContent=doc.title;$("track-title").textContent=previewMode?doc.title.replace(/ — Free Introduction$/,""):doc.title+(doc.chapters.length>1?" · "+doc.chapters[chapter].title:"");$("reading-text").replaceChildren();nodes=[];activeNode=null;
@@ -66,6 +75,7 @@ function speakPart(){
       starting=true;update();message("Starting Samantha. Waiting for speech to begin.");
       function started(){if(token!==generation||!playing)return;began=true;starting=false;clearSpeechStartTimer();update();message("Reading aloud with Samantha.");}
       utterance.onstart=started;
+      utterance.onpause=function(){if(token===generation&&playing){stop();message("Samantha was interrupted. Tap Play to continue.");}};
       utterance.onboundary=function(event){if(token!==generation||!playing)return;if(!began)started();offset=start+(event.charIndex||0);};
       utterance.onend=function(){
         if(token!==generation||!playing)return;clearSpeechStartTimer();
@@ -82,15 +92,16 @@ function speakPart(){
       catch(_){if(token===generation)speechFailed("Samantha could not start. Press Play to retry.");}
     }
     function play(){
-      if(!supported||!parts.length)return;loadVoices();
-      if(!selectedVoice()){message("Samantha is unavailable. No other voice will be used.");return;}
-      if(!consentForVoice())return;
-      generation++;clearSpeechStartTimer();starting=false;
-      try{if(synth.speaking||synth.pending||synth.paused)synth.cancel();}
-      catch(_){playing=false;update();message("The speech engine could not reset. Press Play to retry.");return;}
-      playing=true;speakPart();
-    }
-    function seek(number){var resume=playing;stop();index=Math.max(0,Math.min(parts.length-1,Number(number)||0));offset=0;update();savePosition();if(resume)play();}
+  if(!supported||!parts.length||document.hidden)return;
+  loadVoices();if(!selectedVoice()){message("Samantha is unavailable. No other voice will be used.");return;}
+  if(!consentForVoice())return;
+  if(cancelBarrier){message("Speech is resetting. Tap Play again to continue with Samantha.");return;}
+  if(synth.speaking||synth.pending){stop();message("Speech engine reset. Tap Play again to start Samantha.");return;}
+  generation++;clearSpeechStartTimer();starting=false;
+  try{if(synth.paused)synth.resume();}catch(_){message("Samantha could not resume. Tap Play to retry.");return;}
+  playing=true;speakPart();
+}
+function seek(number){var resume=playing;stop();index=Math.max(0,Math.min(parts.length-1,Number(number)||0));offset=0;update();savePosition();if(resume)play();}
 function restorePersonalText(){
   var saved=read(DOC_KEY);
   if(!saved){message("No saved personal text found in this browser.");return;}
@@ -132,8 +143,31 @@ $("save").addEventListener("click",function(){message(savePosition()?"Reading pl
 ["voice","rate"].forEach(function(id){$(id).addEventListener("change",function(){var resume=playing;stop();savePreferences();if(resume)play();});});
 $("font-size").addEventListener("input",function(){document.documentElement.style.setProperty("--size",this.value+"px");savePreferences();});
 $("forget").addEventListener("click",function(){if(!window.confirm("Clear this reader's saved text and position from this browser?"))return;stop();try{localStorage.removeItem(DOC_KEY);localStorage.removeItem(POS_KEY);}catch(_){}doc=null;previewMode=false;parts=[];nodes=[];activeNode=null;$("reading-text").replaceChildren();$("document-title").textContent="Your reading space";$("track-title").textContent="No text loaded";$("chapter-label").hidden=true;$("input-text").value="";$("input-title").value="";$("import-panel").open=true;update();message("Saved text cleared.");});
-window.addEventListener("pagehide",function(){stop();});
-window.addEventListener("pageshow",function(){loadVoices();update();});
+var READER_BUILD="reader-lifecycle-20261028-r1",voiceRefreshTimers=[],lastLifecycle="loaded";
+function clearVoiceRefresh(){voiceRefreshTimers.forEach(clearTimeout);voiceRefreshTimers=[];}
+function refreshReaderVoices(){
+  clearVoiceRefresh();if(document.hidden)return;
+  loadVoices();[150,600,1500].forEach(function(delay){voiceRefreshTimers.push(setTimeout(function(){if(!document.hidden&&!playing)loadVoices();},delay));});
+}
+function pauseForLifecycle(reason){
+  var active=playing||starting;lastLifecycle=reason;clearVoiceRefresh();stop();
+  if(active)message("Reading paused while the app was interrupted. Tap Play to continue with Samantha.");
+}
+window.addEventListener("pagehide",function(){pauseForLifecycle("pagehide");});
+window.addEventListener("pageshow",function(event){if(event.persisted)pauseForLifecycle("restored");refreshReaderVoices();update();});
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden)pauseForLifecycle("hidden");
+  else{pauseForLifecycle("foreground");refreshReaderVoices();}
+});
+window.addEventListener("focus",function(){if(!playing&&!document.hidden)refreshReaderVoices();});
+document.documentElement.dataset.readerBuild=READER_BUILD;
+var readerBuildLabel=document.createElement("small");readerBuildLabel.id="reader-build";readerBuildLabel.className="note wide";
+var installed=!!(window.navigator&&window.navigator.standalone)||(!!window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches);
+readerBuildLabel.textContent="Reader build: "+READER_BUILD+" ("+(installed?"installed app":"browser")+")";
+var settingsBody=$("reader-settings").querySelector(".panel-body");if(settingsBody)settingsBody.appendChild(readerBuildLabel);
+window.FreedomReaderDiagnostics=Object.freeze({snapshot:function(){var v=selectedVoice();return {build:READER_BUILD,installed:installed,visibility:document.hidden?"hidden":"visible",lifecycle:lastLifecycle,state:starting?"starting":playing?"playing":"paused",cancelBarrier:cancelBarrier,voice:v?{name:v.name,lang:v.lang,uri:v.voiceURI,local:v.localService}:null,engine:supported?{speaking:!!synth.speaking,pending:!!synth.pending,paused:!!synth.paused}:null};}});
+refreshReaderVoices();
+
 var preferences=read(PREF_KEY)||{};if(["0.75","1","1.25","1.5","1.75","2"].indexOf(preferences.rate)!==-1)$("rate").value=preferences.rate;var size=Math.max(16,Math.min(28,Number(preferences.size)||20));$("font-size").value=String(size);document.documentElement.style.setProperty("--size",size+"px");
 loadVoices();if(supported)synth.addEventListener("voiceschanged",loadVoices);var saved=read(DOC_KEY),position=read(POS_KEY),sampleId=(new URLSearchParams(window.location.search)).get("sample"),requestedPreview=PREVIEWS.find(function(item){return item.id===sampleId;})||null;if(requestedPreview)$("featured-book").value=requestedPreview.id;refreshPreviewInfo();if(saved&&!requestedPreview){try{openDocument(parseDocument(JSON.stringify(saved),"saved.json",""),position,true,false);}catch(_){loadPreview(selectedPreview());message("Saved text could not be opened. A public preview is available.");}}else{loadPreview(requestedPreview||PREVIEWS[0]);}if(!supported)message("This browser does not provide speech. You can still read text.");update();
 })();
