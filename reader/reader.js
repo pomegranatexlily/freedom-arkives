@@ -19,6 +19,7 @@ function isSamantha(v){return !!v&&/^en(?:[-_]|$)/i.test(v.lang||"")&&/(^|[^a-z]
 if(typeof module!=="undefined"&&module.exports){module.exports={passages:passages,parseDocument:parseDocument,isSamantha:isSamantha};return;}
 var $=function(id){return document.getElementById(id);},synth=window.speechSynthesis,supported=!!(synth&&window.SpeechSynthesisUtterance);
 var doc=null,chapter=0,index=0,offset=0,parts=[],nodes=[],voices=[],playing=false,generation=0,utterance=null,activeNode=null,acceptedVoice=null,previewMode=false;
+var starting=false,speechStartTimer=null;
 // Promotional catalog introductions only; the full manuscripts are never loaded from this data.
 var PREVIEWS=Array.isArray(window.FreedomBookPreviews)?window.FreedomBookPreviews:[];
 var DOC_KEY="fa.reader.document.v1",POS_KEY="fa.reader.position.v1",PREF_KEY="fa.reader.preferences.v1";
@@ -32,11 +33,13 @@ function update(){
   var exists=!!parts.length;
   $("play").disabled=!exists||!supported||!selectedVoice();$("previous").disabled=!exists||(index===0&&chapter===0);$("next").disabled=!exists||(index===parts.length-1&&chapter===doc.chapters.length-1);$("save").disabled=!exists||previewMode;$("return-saved").hidden=!previewMode||!read(DOC_KEY);$("seek").disabled=!exists;
   $("seek").max=String(Math.max(0,parts.length-1));$("seek").value=String(index);$("position").textContent=exists?(index+1)+" / "+parts.length:"0 / 0";
-  $("play").dataset.state=playing?"playing":"paused";$("play").setAttribute("aria-label",playing?"Pause reading":"Read aloud");$("play").title=playing?"Pause":"Play";
+  $("play").dataset.state=starting?"starting":playing?"playing":"paused";$("play").setAttribute("aria-label",starting?"Cancel speech request":playing?"Pause reading":"Read aloud");$("play").setAttribute("aria-busy",String(starting));$("play").title=starting?"Cancel speech request":playing?"Pause":"Play";
   if(activeNode)activeNode.classList.remove("active");activeNode=nodes[index]||null;if(activeNode)activeNode.classList.add("active");
 }
-function stop(){generation++;playing=false;if(supported)synth.cancel();utterance=null;savePosition();update();}
-function showChapter(number,startIndex,startOffset){
+function clearSpeechStartTimer(){if(speechStartTimer!==null){clearTimeout(speechStartTimer);speechStartTimer=null;}}
+    function stop(){generation++;clearSpeechStartTimer();starting=false;playing=false;if(supported){try{synth.cancel();}catch(_){}}utterance=null;savePosition();update();}
+    function speechFailed(text){stop();message(text);}
+    function showChapter(number,startIndex,startOffset){
   chapter=Math.max(0,Math.min(doc.chapters.length-1,Number(number)||0));parts=passages(doc.chapters[chapter].text);index=Math.max(0,Math.min(parts.length-1,Number(startIndex)||0));offset=Math.max(0,Math.min(parts[index]?parts[index].text.length:0,Number(startOffset)||0));
   $("chapter").value=String(chapter);$("document-title").textContent=doc.title;$("track-title").textContent=previewMode?doc.title.replace(/ — Free Introduction$/,""):doc.title+(doc.chapters.length>1?" · "+doc.chapters[chapter].title:"");$("reading-text").replaceChildren();nodes=[];activeNode=null;
   var last=-1,p;parts.forEach(function(part,i){if(part.paragraph!==last){p=document.createElement("p");$("reading-text").appendChild(p);last=part.paragraph;}var span=document.createElement("span");span.textContent=part.text+" ";span.dataset.passage=String(i);p.appendChild(span);nodes.push(span);});update();savePosition();
@@ -53,14 +56,41 @@ function loadVoices(){
 }
 function consentForVoice(){var voice=selectedVoice();if(!isSamantha(voice))return false;if(!voice.localService&&acceptedVoice!==voice.voiceURI){if(!window.confirm("Your browser has not identified this Samantha voice as local. It may send reading text to its speech provider. Continue?"))return false;acceptedVoice=voice.voiceURI;}return true;}
 function speakPart(){
-  if(!playing||!parts[index])return;var voice=selectedVoice();if(!isSamantha(voice)){stop();message("Samantha is unavailable. No other voice will be used.");return;}if(offset>=parts[index].text.length)offset=0;
-  var token=++generation,start=offset;utterance=new SpeechSynthesisUtterance(parts[index].text.slice(start));utterance.voice=voice;utterance.lang=voice.lang;utterance.rate=Number($("rate").value)||1;
-  utterance.onboundary=function(event){if(token===generation)offset=start+(event.charIndex||0);};
-  utterance.onend=function(){if(token!==generation||!playing)return;offset=0;if(index+1<parts.length)index++;else if(chapter+1<doc.chapters.length)showChapter(chapter+1,0,0);else{playing=false;offset=parts[index].text.length;savePosition();update();message("Reading complete.");return;}update();savePosition();speakPart();};
-  utterance.onerror=function(event){if(token!==generation)return;playing=false;savePosition();update();message("Speech stopped: "+(event.error||"voice unavailable")+". Press Play to retry Samantha.");};synth.speak(utterance);
-}
-function play(){if(!supported||!parts.length)return;loadVoices();if(!selectedVoice()){message("Samantha is unavailable. No other voice will be used.");return;}if(!consentForVoice())return;synth.cancel();synth.resume();playing=true;update();message("Reading aloud with Samantha.");speakPart();}
-function seek(number){var resume=playing;stop();index=Math.max(0,Math.min(parts.length-1,Number(number)||0));offset=0;update();savePosition();if(resume)play();}
+      if(!playing||!parts[index])return;
+      var voice=selectedVoice();if(!isSamantha(voice)){speechFailed("Samantha is unavailable. No other voice will be used.");return;}
+      if(offset>=parts[index].text.length)offset=0;
+      clearSpeechStartTimer();
+      var token=++generation,start=offset,began=false;
+      utterance=new SpeechSynthesisUtterance(parts[index].text.slice(start));
+      utterance.voice=voice;utterance.lang=voice.lang;utterance.rate=Number($("rate").value)||1;utterance.volume=1;
+      starting=true;update();message("Starting Samantha. Waiting for speech to begin.");
+      function started(){if(token!==generation||!playing)return;began=true;starting=false;clearSpeechStartTimer();update();message("Reading aloud with Samantha.");}
+      utterance.onstart=started;
+      utterance.onboundary=function(event){if(token!==generation||!playing)return;if(!began)started();offset=start+(event.charIndex||0);};
+      utterance.onend=function(){
+        if(token!==generation||!playing)return;clearSpeechStartTimer();
+        if(!began){speechFailed("Samantha ended the request without confirming playback. Press Play to retry.");return;}
+        offset=0;
+        if(index+1<parts.length)index++;
+        else if(chapter+1<doc.chapters.length)showChapter(chapter+1,0,0);
+        else{playing=false;starting=false;utterance=null;offset=parts[index].text.length;savePosition();update();message("Reading complete.");return;}
+        update();savePosition();speakPart();
+      };
+      utterance.onerror=function(event){if(token!==generation)return;speechFailed("Samantha could not play ("+(event.error||"voice unavailable")+"). Press Play to retry.");};
+      speechStartTimer=setTimeout(function(){if(token===generation&&playing&&!began)speechFailed("Samantha did not start. Keep this page open and press Play to retry.");},8000);
+      try{synth.speak(utterance);if(synth.paused)synth.resume();}
+      catch(_){if(token===generation)speechFailed("Samantha could not start. Press Play to retry.");}
+    }
+    function play(){
+      if(!supported||!parts.length)return;loadVoices();
+      if(!selectedVoice()){message("Samantha is unavailable. No other voice will be used.");return;}
+      if(!consentForVoice())return;
+      generation++;clearSpeechStartTimer();starting=false;
+      try{if(synth.speaking||synth.pending||synth.paused)synth.cancel();}
+      catch(_){playing=false;update();message("The speech engine could not reset. Press Play to retry.");return;}
+      playing=true;speakPart();
+    }
+    function seek(number){var resume=playing;stop();index=Math.max(0,Math.min(parts.length-1,Number(number)||0));offset=0;update();savePosition();if(resume)play();}
 function restorePersonalText(){
   var saved=read(DOC_KEY);
   if(!saved){message("No saved personal text found in this browser.");return;}
@@ -102,7 +132,8 @@ $("save").addEventListener("click",function(){message(savePosition()?"Reading pl
 ["voice","rate"].forEach(function(id){$(id).addEventListener("change",function(){var resume=playing;stop();savePreferences();if(resume)play();});});
 $("font-size").addEventListener("input",function(){document.documentElement.style.setProperty("--size",this.value+"px");savePreferences();});
 $("forget").addEventListener("click",function(){if(!window.confirm("Clear this reader's saved text and position from this browser?"))return;stop();try{localStorage.removeItem(DOC_KEY);localStorage.removeItem(POS_KEY);}catch(_){}doc=null;previewMode=false;parts=[];nodes=[];activeNode=null;$("reading-text").replaceChildren();$("document-title").textContent="Your reading space";$("track-title").textContent="No text loaded";$("chapter-label").hidden=true;$("input-text").value="";$("input-title").value="";$("import-panel").open=true;update();message("Saved text cleared.");});
-window.addEventListener("pagehide",function(){savePosition();if(supported)synth.cancel();});
+window.addEventListener("pagehide",function(){stop();});
+window.addEventListener("pageshow",function(){loadVoices();update();});
 var preferences=read(PREF_KEY)||{};if(["0.75","1","1.25","1.5","1.75","2"].indexOf(preferences.rate)!==-1)$("rate").value=preferences.rate;var size=Math.max(16,Math.min(28,Number(preferences.size)||20));$("font-size").value=String(size);document.documentElement.style.setProperty("--size",size+"px");
 loadVoices();if(supported)synth.addEventListener("voiceschanged",loadVoices);var saved=read(DOC_KEY),position=read(POS_KEY),sampleId=(new URLSearchParams(window.location.search)).get("sample"),requestedPreview=PREVIEWS.find(function(item){return item.id===sampleId;})||null;if(requestedPreview)$("featured-book").value=requestedPreview.id;refreshPreviewInfo();if(saved&&!requestedPreview){try{openDocument(parseDocument(JSON.stringify(saved),"saved.json",""),position,true,false);}catch(_){loadPreview(selectedPreview());message("Saved text could not be opened. A public preview is available.");}}else{loadPreview(requestedPreview||PREVIEWS[0]);}if(!supported)message("This browser does not provide speech. You can still read text.");update();
 })();

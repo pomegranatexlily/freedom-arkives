@@ -1,0 +1,22 @@
+{
+  "status": "local_checks_passed",
+  "speech_engine_mocked": true,
+  "audible_playback_verified": false,
+  "design_and_content_preserved": true,
+  "browser_checks": [
+    {
+      "viewport": 390,
+      "passed": true,
+      "introductions_checked": 16,
+      "speech_engine_mocked": true,
+      "audible_playback_verified": false
+    },
+    {
+      "viewport": 1440,
+      "passed": true,
+      "introductions_checked": 16,
+      "speech_engine_mocked": true,
+      "audible_playback_verified": false
+    }
+  ]
+}
