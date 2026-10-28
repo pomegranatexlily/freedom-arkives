@@ -1,0 +1,182 @@
+{
+  "run": {
+    "id": 40656558392,
+    "status": "completed",
+    "conclusion": "failure",
+    "url": "https://github.com/pomegranatexlily/freedom-arkives/actions/runs/40656558392"
+  },
+  "jobs": [
+    {
+      "name": "publish",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-28T08:24:37Z",
+          "completed_at": "2026-10-28T08:24:38Z"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-28T08:24:38Z",
+          "completed_at": "2026-10-28T08:24:40Z"
+        },
+        {
+          "name": "Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-28T08:24:40Z",
+          "completed_at": "2026-10-28T08:24:40Z"
+        },
+        {
+          "name": "Build the gallery using the pinned studio background",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-28T08:24:40Z",
+          "completed_at": "2026-10-28T08:24:40Z"
+        },
+        {
+          "name": "Check code and install browser driver",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-28T08:24:40Z",
+          "completed_at": "2026-10-28T08:24:58Z"
+        },
+        {
+          "name": "Execute browser checks and capture screenshots",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 6,
+          "started_at": "2026-10-28T08:24:58Z",
+          "completed_at": "2026-10-28T08:25:31Z"
+        },
+        {
+          "name": "Commit tested application directly to main",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 7,
+          "started_at": "2026-10-28T08:25:31Z",
+          "completed_at": "2026-10-28T08:25:31Z"
+        },
+        {
+          "name": "Package public site",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 8,
+          "started_at": "2026-10-28T08:25:31Z",
+          "completed_at": "2026-10-28T08:25:31Z"
+        },
+        {
+          "name": "Run actions/upload-pages-artifact@v3",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 9,
+          "started_at": "2026-10-28T08:25:31Z",
+          "completed_at": "2026-10-28T08:25:31Z"
+        },
+        {
+          "name": "Deploy tested release",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 10,
+          "started_at": "2026-10-28T08:25:31Z",
+          "completed_at": "2026-10-28T08:25:31Z"
+        },
+        {
+          "name": "Verify deployed release",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 11,
+          "started_at": "2026-10-28T08:25:31Z",
+          "completed_at": "2026-10-28T08:25:31Z"
+        },
+        {
+          "name": "Keep screenshots and test results",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-28T08:25:31Z",
+          "completed_at": "2026-10-28T08:25:33Z"
+        },
+        {
+          "name": "Post Run actions/setup-python@v5",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 23,
+          "started_at": "2026-10-28T08:25:33Z",
+          "completed_at": "2026-10-28T08:25:33Z"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 24,
+          "started_at": "2026-10-28T08:25:33Z",
+          "completed_at": "2026-10-28T08:25:33Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 25,
+          "started_at": "2026-10-28T08:25:34Z",
+          "completed_at": "2026-10-28T08:25:34Z"
+        }
+      ],
+      "check_output": {
+        "title": null,
+        "summary": null,
+        "text": null,
+        "annotations_count": 3,
+        "annotations_url": "https://api.github.com/repos/pomegranatexlily/freedom-arkives/check-runs/122708882116/annotations"
+      },
+      "annotations": [
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/pomegranatexlily/freedom-arkives/blob/e4fa4850b60257d347e2e8bf0d3dc57ce9c5f79a/.github",
+          "start_line": 4,
+          "start_column": null,
+          "end_line": 4,
+          "end_column": null,
+          "annotation_level": "warning",
+          "title": "",
+          "message": "Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/pomegranatexlily/freedom-arkives/blob/e4fa4850b60257d347e2e8bf0d3dc57ce9c5f79a/.github",
+          "start_line": 156,
+          "start_column": null,
+          "end_line": 156,
+          "end_column": null,
+          "annotation_level": "failure",
+          "title": "",
+          "message": "Process completed with exit code 1.",
+          "raw_details": ""
+        },
+        {
+          "path": ".github",
+          "blob_href": "https://github.com/pomegranatexlily/freedom-arkives/blob/e4fa4850b60257d347e2e8bf0d3dc57ce9c5f79a/.github",
+          "start_line": 1,
+          "start_column": null,
+          "end_line": 1,
+          "end_column": null,
+          "annotation_level": "notice",
+          "title": "",
+          "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+          "raw_details": ""
+        }
+      ],
+      "log_tail": "1m    executable=shutil.which('google-chrome') or shutil.which('chromium');assert executable\u001b[0m\n2026-10-28T08:24:58.6375244Z \u001b[36;1m    browser=p.chromium.launch(executable_path=executable,args=['--no-sandbox'])\u001b[0m\n2026-10-28T08:24:58.6375798Z \u001b[36;1m    for width in [360,390,1440]:\u001b[0m\n2026-10-28T08:24:58.6376601Z \u001b[36;1m        page=browser.new_page(viewport={'width':width,'height':900},service_workers='block');errors=[];page.on('pageerror',lambda e:errors.append(str(e)))\u001b[0m\n2026-10-28T08:24:58.6377900Z \u001b[36;1m        page.goto('http://127.0.0.1:8765/',wait_until='networkidle');page.wait_for_selector('.fa-showcase');assert page.locator('.pom-spatial-bg').count()==1\u001b[0m\n2026-10-28T08:24:58.6379150Z \u001b[36;1m        page.screenshot(path=f'evidence/home-{width}.png',full_page=True)\u001b[0m\n2026-10-28T08:24:58.6380291Z \u001b[36;1m        box=page.locator('#home .fa-showcase');deck=box.locator('.fa-deck');box.get_by_role('button',name='Next book',exact=True).click();page.wait_for_timeout(1000);assert deck.evaluate('(e)=>e.scrollLeft>0')\u001b[0m\n2026-10-28T08:24:58.6381650Z \u001b[36;1m        page.evaluate(\"location.hash='library'\");page.wait_for_timeout(100);page.wait_for_selector('#bookGrid')\u001b[0m\n2026-10-28T08:24:58.6382585Z \u001b[36;1m        assert page.locator('#bookGrid .catalog-book').count()==page.locator('#catalogData').evaluate('(e)=>JSON.parse(e.textContent).books.length')\u001b[0m\n2026-10-28T08:24:58.6383496Z \u001b[36;1m        assert page.locator('#bookGrid .catalog-cover').first.evaluate('(i)=>i.complete&&i.naturalWidth>0')\u001b[0m\n2026-10-28T08:24:58.6384418Z \u001b[36;1m        page.locator('#bookSearch').fill('zzzz-no-matching-book');assert page.locator('#bookEmpty').is_visible();page.locator('#bookSearch').fill('')\u001b[0m\n2026-10-28T08:24:58.6385322Z \u001b[36;1m        page.locator('#bookGrid [data-book]').first.click();assert page.locator('#bookDetail').is_visible()\u001b[0m\n2026-10-28T08:24:58.6386142Z \u001b[36;1m        page.get_by_role('button',name='Back to the library',exact=False).click();assert page.locator('#catalogView').is_visible()\u001b[0m\n2026-10-28T08:24:58.6386890Z \u001b[36;1m        page.screenshot(path=f'evidence/library-{width}.png',full_page=True)\u001b[0m\n2026-10-28T08:24:58.6387623Z \u001b[36;1m        page.evaluate(\"location.hash='articles'\");page.wait_for_timeout(100);assert page.locator('#articleGrid').is_visible()\u001b[0m\n2026-10-28T08:24:58.6388589Z \u001b[36;1m        page.emulate_media(reduced_motion='reduce');page.wait_for_function(\"document.querySelector('.pom-spatial-bg').dataset.motion==='off'\")\u001b[0m\n2026-10-28T08:24:58.6389850Z \u001b[36;1m        assert not errors,errors;assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')\u001b[0m\n2026-10-28T08:24:58.6390547Z \u001b[36;1m        results.append({'viewport':width,'passed':True,'physical_iphone':False});page.close()\u001b[0m\n2026-10-28T08:24:58.6391007Z \u001b[36;1m    browser.close()\u001b[0m\n2026-10-28T08:24:58.6391381Z \u001b[36;1mPath('evidence/checks.json').write_text(json.dumps(results,indent=2))\u001b[0m\n2026-10-28T08:24:58.6393814Z shell: /opt/hostedtoolcache/Python/3.12.15/x64/bin/python {0}\n2026-10-28T08:24:58.6394182Z env:\n2026-10-28T08:24:58.6394449Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64\n2026-10-28T08:24:58.6394880Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig\n2026-10-28T08:24:58.6395515Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64\n2026-10-28T08:24:58.6395922Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64\n2026-10-28T08:24:58.6396314Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64\n2026-10-28T08:24:58.6396699Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib\n2026-10-28T08:24:58.6397035Z ##[endgroup]\n2026-10-28T08:25:00.4817939Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET / HTTP/1.1\" 200 -\n2026-10-28T08:25:00.5364601Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /app-navigation.css HTTP/1.1\" 200 -\n2026-10-28T08:25:00.5391565Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /fa-studio.css HTTP/1.1\" 200 -\n2026-10-28T08:25:00.5419683Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /privacy-consent.js HTTP/1.1\" 200 -\n2026-10-28T08:25:00.5480179Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/fa-hero.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.5516562Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /homepage-style-1.css HTTP/1.1\" 200 -\n2026-10-28T08:25:00.5519328Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /homepage-script-1.js HTTP/1.1\" 200 -\n2026-10-28T08:25:00.5676377Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /homepage-script-2.js HTTP/1.1\" 200 -\n2026-10-28T08:25:00.5724316Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /offline-register.js HTTP/1.1\" 200 -\n2026-10-28T08:25:00.5800485Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /fa-studio.js HTTP/1.1\" 200 -\n2026-10-28T08:25:00.5803410Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /app-navigation.js HTTP/1.1\" 200 -\n2026-10-28T08:25:00.5834897Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /icon-192.png?v=arkives-poster-20261017 HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6025793Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/148c2d6dcc1c35335db481a6.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6124581Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/f8b0b3a3b75e8588a2aa6fb2.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6150211Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/b1fc06c804d69d4e8f802cf8.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6162873Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/7240b75a15cb00b3381e99cf.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6369828Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/1b1c062c12ea984da26acbca.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6390724Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/8c5f2edd511b5efd01eb51de.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6392499Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/9c3ff23e5544612ced72ae51.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6394095Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/1d1716eae9fee6b0afddb10a.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6395561Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/3edbffb22fcd37014feb1d4f.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6396944Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/445017c17c6f529b26bf1e23.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6398333Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/14a72ecc8d11573cb408771a.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6434561Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/c370842cf99ee68952c7ede4.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6440021Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/covers/brownie-mcqueen-brownie-wars.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6470164Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/extracted/63a71f2604a1f4fc6366e93b.jpg HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6471376Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/covers/oustory-covenant-bible-volume-i.webp HTTP/1.1\" 200 -\n2026-10-28T08:25:00.6501930Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /assets/covers/oustory-covenant-bible-volume-ii.webp HTTP/1.1\" 200 -\n2026-10-28T08:25:00.8120168Z 127.0.0.1 - - [28/Oct/2026 08:25:00] \"GET /privacy-consent.css HTTP/1.1\" 200 -\n2026-10-28T08:25:31.7751329Z Traceback (most recent call last):\n2026-10-28T08:25:31.7763495Z   File \"/home/runner/work/_temp/105a2410-b563-4e33-8d2f-22f01a1a424f.py\", line 14, in <module>\n2026-10-28T08:25:31.7766727Z     box=page.locator('#home .fa-showcase');deck=box.locator('.fa-deck');box.get_by_role('button',name='Next book',exact=True).click();page.wait_for_timeout(1000);assert deck.evaluate('(e)=>e.scrollLeft>0')\n2026-10-28T08:25:31.7767880Z                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-28T08:25:31.7768799Z   File \"/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py\", line 15507, in click\n2026-10-28T08:25:31.7777641Z     self._sync(\n2026-10-28T08:25:31.7778632Z   File \"/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/playwright/_impl/_sync_base.py\", line 115, in _sync\n2026-10-28T08:25:31.7779946Z     return task.result()\n2026-10-28T08:25:31.7780349Z            ^^^^^^^^^^^^^\n2026-10-28T08:25:31.7781324Z   File \"/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/playwright/_impl/_locator.py\", line 160, in click\n2026-10-28T08:25:31.7782513Z     return await self._frame.click(self._selector, strict=True, **params)\n2026-10-28T08:25:31.7790349Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-28T08:25:31.7791493Z   File \"/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py\", line 488, in click\n2026-10-28T08:25:31.7792384Z     await self._channel.send(\"click\", locals_to_params(locals()))\n2026-10-28T08:25:31.7793179Z   File \"/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py\", line 61, in send\n2026-10-28T08:25:31.7793861Z     return await self._connection.wrap_api_call(\n2026-10-28T08:25:31.7794197Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n2026-10-28T08:25:31.7795250Z   File \"/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py\", line 528, in wrap_api_call\n2026-10-28T08:25:31.7796090Z     raise rewrite_error(error, f\"{parsed_st['apiName']}: {error}\") from None\n2026-10-28T08:25:31.7796705Z playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.\n2026-10-28T08:25:31.7797164Z Call log:\n2026-10-28T08:25:31.7797581Z   - waiting for locator(\"#home .fa-showcase\").get_by_role(\"button\", name=\"Next book\", exact=True)\n2026-10-28T08:25:31.7798543Z   -     - locator resolved to <button class=\"\" type=\"button\" aria-label=\"Next book\">\u2192</button>\n2026-10-28T08:25:31.7799368Z   -   - attempting click action\n2026-10-28T08:25:31.7799995Z   -     2 \u00d7 waiting for element to be visible, enabled and stable\n2026-10-28T08:25:31.7800604Z   -       - element is visible, enabled and stable\n2026-10-28T08:25:31.7801125Z   -       - scrolling into view if needed\n2026-10-28T08:25:31.7801453Z   -       - done scrolling\n2026-10-28T08:25:31.7801902Z   -       - <div class=\"fa-privacy-shade\">\u2026</div> intercepts pointer events\n2026-10-28T08:25:31.7802336Z   -     - retrying click action\n2026-10-28T08:25:31.7802605Z   -     - waiting 20ms\n2026-10-28T08:25:31.7802983Z   -     2 \u00d7 waiting for element to be visible, enabled and stable\n2026-10-28T08:25:31.7803354Z   -       - element is not stable\n2026-10-28T08:25:31.7803638Z   -     - retrying click action\n2026-10-28T08:25:31.7803910Z   -       - waiting 100ms\n2026-10-28T08:25:31.7804229Z   -     - waiting for element to be visible, enabled and stable\n2026-10-28T08:25:31.7804598Z   -     - element is not stable\n2026-10-28T08:25:31.7804907Z   -   2 \u00d7 retrying click action\n2026-10-28T08:25:31.7805188Z   -       - waiting 500ms\n2026-10-28T08:25:31.7805506Z   -       - waiting for element to be visible, enabled and stable\n2026-10-28T08:25:31.7805890Z   -       - element is visible, enabled and stable\n2026-10-28T08:25:31.7806196Z   -       - scrolling into view if needed\n2026-10-28T08:25:31.7806483Z   -       - done scrolling\n2026-10-28T08:25:31.7807592Z   -       - <section role=\"dialog\" aria-modal=\"true\" class=\"fa-privacy-panel\" aria-labelledby=\"fa-privacy-heading\">\u2026</section> from <div class=\"fa-privacy-shade\">\u2026</div> subtree intercepts pointer events\n2026-10-28T08:25:31.7808455Z   -   13 \u00d7 retrying click action\n2026-10-28T08:25:31.7808704Z   -        - waiting 500ms\n2026-10-28T08:25:31.7809271Z   -        - waiting for element to be visible, enabled and stable\n2026-10-28T08:25:31.7809651Z   -        - element is visible, enabled and stable\n2026-10-28T08:25:31.7809962Z   -        - scrolling into view if needed\n2026-10-28T08:25:31.7810240Z   -        - done scrolling\n2026-10-28T08:25:31.7811259Z   -        - <p>We use essential hosting and browser functions to\u2026</p> from <div class=\"fa-privacy-shade\">\u2026</div> subtree intercepts pointer events\n2026-10-28T08:25:31.7811878Z   -      - retrying click action\n2026-10-28T08:25:31.7812131Z   -        - waiting 500ms\n2026-10-28T08:25:31.7812438Z   -        - waiting for element to be visible, enabled and stable\n2026-10-28T08:25:31.7812797Z   -        - element is visible, enabled and stable\n2026-10-28T08:25:31.7813102Z   -        - scrolling into view if needed\n2026-10-28T08:25:31.7813399Z   -        - done scrolling\n2026-10-28T08:25:31.7813785Z   -        - <div class=\"fa-privacy-shade\">\u2026</div> intercepts pointer events\n2026-10-28T08:25:31.7814159Z   -      - retrying click action\n2026-10-28T08:25:31.7814411Z   -        - waiting 500ms\n2026-10-28T08:25:31.7814699Z   -        - waiting for element to be visible, enabled and stable\n2026-10-28T08:25:31.7815051Z   -        - element is visible, enabled and stable\n2026-10-28T08:25:31.7815351Z   -        - scrolling into view if needed\n2026-10-28T08:25:31.7815633Z   -        - done scrolling\n2026-10-28T08:25:31.7816020Z   -        - <div class=\"fa-privacy-shade\">\u2026</div> intercepts pointer events\n2026-10-28T08:25:31.7816546Z   -      - retrying click action\n2026-10-28T08:25:31.7817053Z   -        - waiting 500ms\n2026-10-28T08:25:31.7817339Z   -        - waiting for element to be visible, enabled and stable\n2026-10-28T08:25:31.7817693Z   -        - element is visible, enabled and stable\n2026-10-28T08:25:31.7818001Z   -        - scrolling into view if needed\n2026-10-28T08:25:31.7818280Z   -        - done scrolling\n2026-10-28T08:25:31.7819679Z   -        - <section role=\"dialog\" aria-modal=\"true\" class=\"fa-privacy-panel\" aria-labelledby=\"fa-privacy-heading\">\u2026</section> from <div class=\"fa-privacy-shade\">\u2026</div> subtree intercepts pointer events\n2026-10-28T08:25:31.7820525Z   -   - retrying click action\n2026-10-28T08:25:31.7820776Z   -     - waiting 500ms\n2026-10-28T08:25:31.7821066Z   -     - waiting for element to be visible, enabled and stable\n2026-10-28T08:25:31.7821423Z   -     - element is visible, enabled and stable\n2026-10-28T08:25:31.7821732Z   -     - scrolling into view if needed\n2026-10-28T08:25:31.7822033Z   -     - done scrolling\n2026-10-28T08:25:31.7822736Z   -     - <p>We use essential hosting and browser functions to\u2026</p> from <div class=\"fa-privacy-shade\">\u2026</div> subtree intercepts pointer events\n2026-10-28T08:25:31.7823362Z   -   - retrying click action\n2026-10-28T08:25:31.7823657Z   -     - waiting 500ms\n2026-10-28T08:25:31.7823949Z   -     - waiting for element to be visible, enabled and stable\n2026-10-28T08:25:31.7824313Z   -     - element is visible, enabled and stable\n2026-10-28T08:25:31.7824617Z   -     - scrolling into view if needed\n2026-10-28T08:25:31.7824892Z   -     - done scrolling\n2026-10-28T08:25:31.7825267Z   -     - <div class=\"fa-privacy-shade\">\u2026</div> intercepts pointer events\n2026-10-28T08:25:31.7825669Z   -   - retrying click action\n2026-10-28T08:25:31.7825905Z   -     - waiting 500ms\n2026-10-28T08:25:31.7826046Z \n2026-10-28T08:25:31.8093554Z ##[error]Process completed with exit code 1.\n2026-10-28T08:25:31.8210578Z ##[group]Run actions/upload-artifact@v4\n2026-10-28T08:25:31.8210899Z with:\n2026-10-28T08:25:31.8211117Z   name: freedom-arkives-studio-evidence\n2026-10-28T08:25:31.8211417Z   path: evidence/\n2026-10-28T08:25:31.8211635Z   if-no-files-found: warn\n2026-10-28T08:25:31.8211872Z   compression-level: 6\n2026-10-28T08:25:31.8212091Z   overwrite: false\n2026-10-28T08:25:31.8212309Z   include-hidden-files: false\n2026-10-28T08:25:31.8212551Z env:\n2026-10-28T08:25:31.8212806Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64\n2026-10-28T08:25:31.8213236Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig\n2026-10-28T08:25:31.8213666Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64\n2026-10-28T08:25:31.8214050Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64\n2026-10-28T08:25:31.8214446Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64\n2026-10-28T08:25:31.8214831Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib\n2026-10-28T08:25:31.8215201Z ##[endgroup]\n2026-10-28T08:25:32.0140073Z (node:2688) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.\n2026-10-28T08:25:32.0141466Z (Use `node --trace-deprecation ...` to show where the warning was created)\n2026-10-28T08:25:32.0216055Z With the provided path, there will be 1 file uploaded\n2026-10-28T08:25:32.0223420Z Artifact name is valid!\n2026-10-28T08:25:32.0224106Z Root directory input is valid!\n2026-10-28T08:25:32.4619292Z Beginning upload of artifact content to blob storage\n2026-10-28T08:25:32.5110979Z (node:2688) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.\n2026-10-28T08:25:33.1025588Z Uploaded bytes 303083\n2026-10-28T08:25:33.1866888Z Finished uploading artifact content to blob storage!\n2026-10-28T08:25:33.1868230Z SHA256 digest of uploaded artifact zip is 0a7b177fa9bfd06aa4a9fe7ab9e8d88a071ca749e82e24407f024b98e064ca2f\n2026-10-28T08:25:33.1869984Z Finalizing artifact upload\n2026-10-28T08:25:33.7022407Z Artifact freedom-arkives-studio-evidence.zip successfully finalized. Artifact ID 12801844227\n2026-10-28T08:25:33.7024940Z Artifact freedom-arkives-studio-evidence has been successfully uploaded! Final size is 303083 bytes. Artifact ID is 12801844227\n2026-10-28T08:25:33.7026884Z Artifact download URL: https://github.com/pomegranatexlily/freedom-arkives/actions/runs/40656558392/artifacts/12801844227\n2026-10-28T08:25:33.7337030Z Post job cleanup.\n2026-10-28T08:25:33.8354773Z [command]/usr/bin/git version\n2026-10-28T08:25:33.8413651Z git version 2.55.0\n2026-10-28T08:25:33.8464932Z Temporarily overriding HOME='/home/runner/work/_temp/1852d07f-b6c6-40c2-9609-221c6e4f4275' before making global git config changes\n2026-10-28T08:25:33.8467275Z Adding repository directory to the temporary git global config as a safe directory\n2026-10-28T08:25:33.8472825Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/freedom-arkives/freedom-arkives\n2026-10-28T08:25:33.8532598Z [command]/usr/bin/git config --local --name-only --get-regexp core\\.sshCommand\n2026-10-28T08:25:33.8607079Z [command]/usr/bin/git submodule foreach --recursive sh -c \"git config --local --name-only --get-regexp 'core\\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\"\n2026-10-28T08:25:33.8989467Z [command]/usr/bin/git config --local --name-only --get-regexp http\\.https\\:\\/\\/github\\.com\\/\\.extraheader\n2026-10-28T08:25:33.9040750Z http.https://github.com/.extraheader\n2026-10-28T08:25:33.9055970Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader\n2026-10-28T08:25:33.9113756Z [command]/usr/bin/git submodule foreach --recursive sh -c \"git config --local --name-only --get-regexp 'http\\.https\\:\\/\\/github\\.com\\/\\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\"\n2026-10-28T08:25:33.9470579Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\\.gitdir:\n2026-10-28T08:25:33.9515816Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url\n2026-10-28T08:25:34.0021887Z Evaluate and set environment url\n2026-10-28T08:25:34.0027078Z Evaluated environment url: \n2026-10-28T08:25:34.0027821Z Cleaning up orphan processes\n2026-10-28T08:25:34.0493098Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/\n"
+    }
+  ]
+}
