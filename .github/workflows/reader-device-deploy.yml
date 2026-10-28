@@ -1,0 +1,127 @@
+name: Deploy pinned reader branch for iPhone acceptance
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/reader-device-deploy.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: freedom-arkives-publishing
+  cancel-in-progress: false
+jobs:
+  deploy-device-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/reader-standalone-lifecycle-20261028
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          ref: e958bad629bb253611a9ff157ad0213679887a96
+          path: device-source
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install PyYAML==6.0.2
+      - name: Verify and retest the exact branch snapshot
+        id: checks
+        shell: python
+        run: |
+          import hashlib,json,subprocess,traceback,yaml
+          from pathlib import Path
+          source=Path('device-source')
+          report={'source_snapshot':'e958bad629bb253611a9ff157ad0213679887a96','repair_commit':'5550cd3151d50b0e6b9db1a8837d453ec7fca495','reader_build':'reader-lifecycle-20261028-r1','repair_merged_into_main':False,'audible_iphone_verified':False,'checks':[]}
+          Path('health').mkdir(exist_ok=True)
+          try:
+              evidence=json.loads((source/'docs/reader-lifecycle-ci.json').read_text())
+              assert evidence['passed'] and evidence['code_commit']==report['repair_commit']
+              raw=(source/'reader/reader.js').read_bytes()
+              assert hashlib.sha1(b'blob '+str(len(raw)).encode()+bytes([0])+raw).hexdigest()=='7094077b1c0e6c1eb7fcf1b90c18667562c249f9'
+              assert report['reader_build'] in raw.decode()
+              config=yaml.load((source/'.github/workflows/code-integrity.yml').read_text(),Loader=yaml.BaseLoader)
+              for step in config['jobs']['verify']['steps']:
+                  if 'run' not in step:continue
+                  r=subprocess.run(step['run'],cwd=source,shell=True,executable='/bin/bash',capture_output=True,text=True,timeout=180)
+                  report['checks'].append({'name':step['name'],'exit_code':r.returncode,'stdout':r.stdout[-12000:],'stderr':r.stderr[-5000:]})
+              r=subprocess.run(['node','scripts/test_reader_lifecycle.cjs'],cwd=source,capture_output=True,text=True,timeout=60)
+              report['lifecycle']={'exit_code':r.returncode,'result':json.loads(r.stdout),'stderr':r.stderr[-3000:]}
+              assert all(c['exit_code']==0 for c in report['checks']) and r.returncode==0,'Pinned snapshot retest failed'
+              report['checks_passed']=True
+          except Exception:
+              report['checks_passed']=False;report['error']=traceback.format_exc();raise
+          finally:
+              Path('health/reader-device-deployment.json').write_text(json.dumps(report,indent=2))
+      - name: Package only the pinned application snapshot
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/reader-device-site
+          tar --exclude=.git --exclude=.github -C device-source -cf - . | tar -xf - -C /tmp/reader-device-site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: /tmp/reader-device-site
+      - name: Deploy branch snapshot to the existing site
+        id: deploy
+        uses: actions/deploy-pages@v4
+      - name: Verify live application files against the pinned snapshot
+        id: live
+        shell: python
+        run: |
+          import json,time,urllib.request
+          from pathlib import Path
+          p=Path('health/reader-device-deployment.json');report=json.loads(p.read_text());report['live_files']=[]
+          try:
+              for name in ['reader/reader.js','sw.js','reader/index.html','index.html','fa-studio.js','fa-studio.css','manifest.webmanifest']:
+                  expected=(Path('device-source')/name).read_bytes()
+                  for attempt in range(12):
+                      try:
+                          url='https://pomegranatexlily.github.io/freedom-arkives/'+name+'?device='+str(time.time_ns())
+                          if urllib.request.urlopen(url,timeout=30).read()==expected:break
+                      except Exception:pass
+                      time.sleep(10)
+                  else:raise AssertionError('Live file mismatch: '+name)
+                  report['live_files'].append({'path':name,'matches_snapshot':True})
+          finally:
+              p.write_text(json.dumps(report,indent=2))
+      - name: Record device-test deployment outcome on repair branch
+        if: always()
+        env:
+          CHECKS: ${{ steps.checks.outcome }}
+          DEPLOY: ${{ steps.deploy.outcome }}
+          LIVE: ${{ steps.live.outcome }}
+          PAGE_URL: ${{ steps.deploy.outputs.page_url }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path('health/reader-device-deployment.json');p.parent.mkdir(exist_ok=True)
+          report=json.loads(p.read_text()) if p.exists() else {}
+          report['outcomes']={key:os.environ.get(key,'unknown') for key in ['CHECKS','DEPLOY','LIVE']}
+          report['page_url']=os.environ.get('PAGE_URL','')
+          report['run_id']=os.environ['GITHUB_RUN_ID']
+          report['deployed']=os.environ.get('DEPLOY')=='success'
+          report['audible_iphone_verified']=False
+          p.write_text(json.dumps(report,indent=2))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add health/reader-device-deployment.json
+          git diff --cached --quiet || git commit -m "Record pinned reader device-test deployment [skip ci]"
+          git push origin HEAD:fix/reader-standalone-lifecycle-20261028
+      - name: Retain deployment verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reader-device-test-deployment
+          path: health/reader-device-deployment.json
