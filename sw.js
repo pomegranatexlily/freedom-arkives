@@ -7,7 +7,7 @@
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
-const VERSION = "fa-offline-reader-ios-speech-recovery-20261028";
+const VERSION = "fa-offline-e9340cc4e5919666";
 const HTML_CACHE = VERSION + "-pages";
 const ASSET_CACHE = VERSION + "-assets";
 const ORIGIN = self.location.origin;
@@ -45,6 +45,8 @@ const SHELL_ASSETS = [
   "assets/fa-hero.jpg",
   "assets/fa-icon.jpg",
   "assets/fonts/SchibstedGrotesk-wght.ttf",
+  "fa-studio.css",
+  "fa-studio.js",
   "favicon-32.png",
   "homepage-script-1.js",
   "homepage-script-2.js",
@@ -58,9 +60,7 @@ const SHELL_ASSETS = [
   "reader/book-previews.js",
   "reader/reader.css",
   "reader/reader.js",
-  "social-preview.png",
-  "fa-studio.js",
-  "fa-studio.css"
+  "social-preview.png"
 ];
 function urlFor(path) { return new URL(path, BASE).href; }
 function inScope(url) {
