@@ -1,0 +1,129 @@
+name: Build and deploy Freedom Arkives studio gallery
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/studio-gallery.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: freedom-arkives-publishing
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build the gallery using the pinned studio background
+        shell: python
+        run: |
+          import hashlib,json,re,urllib.request
+          from pathlib import Path
+          JS="(function(){'use strict';function init(){var grid=document.getElementById('bookGrid'),home=document.querySelector('#home .hero-grid');if(!grid||!home)return;var live=node('div','fa-deck');home.append(wrap(live));grid.classList.add('fa-deck');grid.before(wrap(grid));function node(t,c,s){var n=document.createElement(t);n.className=c||'';if(s)n.textContent=s;return n;}function wrap(deck){var box=node('div','fa-showcase'),head=node('div','fa-stage-label','THE PUBLISHED COLLECTION'),bar=node('div','fa-deck-controls'),prev=node('button','','←'),next=node('button','','→'),count=node('span','');prev.type=next.type='button';prev.setAttribute('aria-label','Previous book');next.setAttribute('aria-label','Next book');count.setAttribute('aria-live','polite');deck.tabIndex=0;deck.setAttribute('aria-label','Swipe through books');deck.setAttribute('role','region');bar.append(prev,count,next);box.append(head);if(deck!==grid)box.append(deck);box.append(bar);var frame=0;function paint(){frame=0;var cards=Array.from(deck.children),center=deck.scrollLeft+deck.clientWidth/2,best=Infinity,index=0;cards.forEach(function(c,i){var d=(c.offsetLeft+c.offsetWidth/2-center)/Math.max(c.offsetWidth,1);if(Math.abs(d)<best){best=Math.abs(d);index=i;}c.style.setProperty('--turn',Math.max(-32,Math.min(32,-d*24))+'deg');c.style.setProperty('--size',String(Math.max(.76,1-Math.abs(d)*.12)));});count.textContent=cards.length?(index+1)+' / '+cards.length:'No matching books';prev.disabled=next.disabled=cards.length<2;}function schedule(){if(!frame)frame=requestAnimationFrame(paint);}function move(dir){var cards=Array.from(deck.children);if(!cards.length)return;var w=cards[0].offsetWidth+28,x=deck.scrollLeft+dir*w,max=deck.scrollWidth-deck.clientWidth;if(x>max+5)x=0;if(x<0)x=max;deck.scrollTo({left:x,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}prev.onclick=function(){move(-1);};next.onclick=function(){move(1);};deck.addEventListener('scroll',schedule,{passive:true});deck.addEventListener('keydown',function(e){if(e.target===deck&&(e.key==='ArrowLeft'||e.key==='ArrowRight')){e.preventDefault();move(e.key==='ArrowLeft'?-1:1);}});window.addEventListener('resize',schedule,{passive:true});deck.addEventListener('load',schedule,true);box.refresh=schedule;requestAnimationFrame(function(){if(deck===grid)head.after(deck);schedule();});return box;}var libraryBox=grid.previousElementSibling;function sync(){live.replaceChildren();Array.from(grid.children).forEach(function(c){live.append(c.cloneNode(true));});live.scrollLeft=0;grid.scrollLeft=0;live.parentElement.refresh();libraryBox.refresh();}live.addEventListener('click',function(e){var t=e.target.closest('[data-book]');if(!t)return;var id=t.dataset.book,target=Array.from(grid.querySelectorAll('[data-book]')).find(function(n){return n.dataset.book===id;});if(target){target.click();window.dispatchEvent(new Event('hashchange'));}});grid.addEventListener('click',function(e){if(e.target.closest('[data-book]'))window.dispatchEvent(new Event('hashchange'));});new MutationObserver(sync).observe(grid,{childList:true});sync();document.body.classList.add('fa-studio-ready');}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();})();"
+          CSS='html.fa-section-navigation{color-scheme:light;--paper:#edece7;--paper-2:#deddd6;--ink:#25242a;--muted:#69636e;--line:#25242a30;--copper:#66516e;--serif:Arial,Helvetica,sans-serif;--sans:Arial,Helvetica,sans-serif;--mono:Arial,Helvetica,sans-serif}body.pom-spatial>.site-head{z-index:100;background:#edece7e8;backdrop-filter:blur(16px)}body.pom-spatial>main,body.pom-spatial>footer{position:relative;z-index:1}.fa-section-navigation .shell{width:min(1380px,calc(100% - 48px))}.fa-section-navigation .hero-grid{grid-template-columns:.8fr 1.25fr;gap:36px;align-items:center;min-height:640px}.fa-section-navigation h1{font-size:clamp(40px,5.6vw,78px);font-weight:400;line-height:1.04;letter-spacing:-.055em}.fa-section-navigation h2{font-weight:400}.fa-section-navigation .hero-lede{font-size:15px;line-height:1.75}.fa-studio-ready #home .hero-art{display:none}.fa-section-navigation .hero-grid>div:first-child,.fa-section-navigation .section-head,.fa-section-navigation .library-note,.fa-section-navigation .pullquote{background:#edece7ed;box-shadow:0 0 20px 12px #edece7b8;border-radius:18px}.fa-section-navigation .catalog-tools,.fa-section-navigation .article-card,.fa-section-navigation .doctrine-card{background:#edece7f5;border:1px solid var(--line);border-radius:20px;overflow:hidden}.fa-section-navigation .article-body{padding:20px}.fa-section-navigation .article-body h3{font-size:25px}.fa-showcase{min-width:0;position:relative}.fa-stage-label{font-size:9px;letter-spacing:1.6px;padding:12px 0;border-bottom:1px solid var(--line)}.fa-deck{--fa-card:240px;display:flex!important;position:relative;gap:28px!important;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;padding:40px max(18px,calc((100% - var(--fa-card))/2)) 25px;scrollbar-width:thin;perspective:1200px;border-radius:20px;background:radial-gradient(ellipse at 50% 40%,#aaa39d55,transparent 68%)}.fa-deck .catalog-book{display:flex!important;flex-direction:column;flex:0 0 var(--fa-card);width:var(--fa-card);min-width:0;scroll-snap-align:center;transform:rotateY(var(--turn,0deg)) scale(var(--size,1));transform-origin:center 38%;padding:0 8px 16px;transition:transform .15s linear}.fa-deck .catalog-cover{width:100%;height:300px!important;aspect-ratio:auto!important;object-fit:contain!important;border:0;box-shadow:none!important;filter:drop-shadow(12px 20px 12px #30263150)}.fa-deck .catalog-book h3{font-size:22px;line-height:1.2}.fa-deck .catalog-book .order{margin-top:25px}.fa-deck .catalog-book .detail-trigger{font-size:12px;min-height:44px;margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:25px;background:#edece7}.fa-deck-controls{display:flex;justify-content:center;align-items:center;gap:24px;padding:12px;background:#edece7e8;border-radius:25px}.fa-deck-controls button{min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:50%;background:#edece7;color:var(--ink);cursor:pointer}.fa-deck-controls button:disabled{opacity:.35}.fa-deck-controls span{font-size:11px;min-width:65px;text-align:center}.fa-section-navigation .catalog-tools input,.fa-section-navigation .catalog-tools select{border-radius:25px}.fa-section-navigation .fa-menu-links{background:#edece7f5;backdrop-filter:blur(16px)}@media(max-width:760px){.fa-section-navigation .shell{width:calc(100% - 36px)}.fa-section-navigation .hero-grid{display:flex;flex-direction:column;align-items:stretch;min-height:0;gap:28px}.fa-section-navigation h1{font-size:clamp(36px,10vw,48px)}.fa-deck{--fa-card:200px;padding-top:30px}.fa-deck .catalog-cover{height:260px!important}.fa-deck .catalog-book h3{font-size:20px}.fa-section-navigation .article-cards{grid-template-columns:1fr}}@media(prefers-reduced-motion:reduce){.fa-deck .catalog-book{transform:none;transition:none}}@media(forced-colors:active){.fa-deck .catalog-cover{filter:none}.fa-deck-controls,.fa-deck .catalog-book .detail-trigger{background:Canvas;color:CanvasText}}'
+          p=Path('index.html');html=p.read_text();pattern=r'<script type="application/json" id="catalogData">(.*?)</script>';catalog=json.loads(re.search(pattern,html,re.S).group(1));assert catalog['books']
+          raw=urllib.request.urlopen('https://raw.githubusercontent.com/pomegranatexlily/pages-app/7082ddc130d0d053dbb584a90d3478bdbf17b717/studio.js',timeout=45).read()
+          assert hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()=='72e1c9db2b16e7a8022e95b31a25d7d3a513c202'
+          source=raw.decode();a=source.index('/* Background-only spatial enhancement;');b=source.index('/* Packet Lily screenshots',a)
+          Path('fa-studio.js').write_text(source[a:b]+JS);Path('fa-studio.css').write_text(CSS)
+          if 'src="fa-studio.js"' not in html:html=html.replace('</body>','<script src="fa-studio.js" defer></script>\n</body>',1)
+          if 'href="fa-studio.css"' not in html:html=html.replace('</head>','<link rel="stylesheet" href="fa-studio.css">\n</head>',1)
+          assert html.count('src="fa-studio.js"')==1 and html.count('href="fa-studio.css"')==1
+          assert json.loads(re.search(pattern,html,re.S).group(1))==catalog;p.write_text(html)
+          p=Path('sw.js');sw=p.read_text();m=re.search(r'const SHELL_ASSETS = \[(.*?)\];',sw,re.S);assert m
+          assets=list(dict.fromkeys(json.loads('['+m.group(1)+']')+['fa-studio.js','fa-studio.css']))
+          sw=sw[:m.start()]+'const SHELL_ASSETS = '+json.dumps(assets,indent=2)+';'+sw[m.end():]
+          version=hashlib.sha256((html+JS+CSS).encode()).hexdigest()[:16]
+          sw,n=re.subn(r'const VERSION = "[^"]+";','const VERSION = "fa-offline-studio-'+version+'";',sw,count=1);assert n==1;p.write_text(sw)
+
+      - name: Check code and install browser driver
+        run: |
+          node --check fa-studio.js
+          node --check sw.js
+          python -m pip install playwright==1.51.0
+      - name: Execute browser checks and capture screenshots
+        shell: python
+        run: |
+          import json,shutil,threading
+          from http.server import ThreadingHTTPServer,SimpleHTTPRequestHandler
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          threading.Thread(target=ThreadingHTTPServer(('127.0.0.1',8765),SimpleHTTPRequestHandler).serve_forever,daemon=True).start()
+          Path('evidence').mkdir(exist_ok=True);results=[]
+          with sync_playwright() as p:
+              executable=shutil.which('google-chrome') or shutil.which('chromium');assert executable
+              browser=p.chromium.launch(executable_path=executable,args=['--no-sandbox'])
+              for width in [360,390,1440]:
+                  page=browser.new_page(viewport={'width':width,'height':900},service_workers='block');errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
+                  page.goto('http://127.0.0.1:8765/',wait_until='networkidle');page.wait_for_selector('.fa-showcase');assert page.locator('.pom-spatial-bg').count()==1
+                  page.screenshot(path=f'evidence/home-{width}.png',full_page=True)
+                  box=page.locator('#home .fa-showcase');deck=box.locator('.fa-deck');box.get_by_role('button',name='Next book',exact=True).click();page.wait_for_timeout(1000);assert deck.evaluate('(e)=>e.scrollLeft>0')
+                  page.evaluate("location.hash='library'");page.wait_for_timeout(100);page.wait_for_selector('#bookGrid')
+                  assert page.locator('#bookGrid .catalog-book').count()==page.locator('#catalogData').evaluate('(e)=>JSON.parse(e.textContent).books.length')
+                  assert page.locator('#bookGrid .catalog-cover').first.evaluate('(i)=>i.complete&&i.naturalWidth>0')
+                  page.locator('#bookSearch').fill('zzzz-no-matching-book');assert page.locator('#bookEmpty').is_visible();page.locator('#bookSearch').fill('')
+                  page.locator('#bookGrid [data-book]').first.click();assert page.locator('#bookDetail').is_visible()
+                  page.get_by_role('button',name='Back to the library',exact=False).click();assert page.locator('#catalogView').is_visible()
+                  page.screenshot(path=f'evidence/library-{width}.png',full_page=True)
+                  page.evaluate("location.hash='articles'");page.wait_for_timeout(100);assert page.locator('#articleGrid').is_visible()
+                  page.emulate_media(reduced_motion='reduce');page.wait_for_function("document.querySelector('.pom-spatial-bg').dataset.motion==='off'")
+                  assert not errors,errors;assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
+                  results.append({'viewport':width,'passed':True,'physical_iphone':False});page.close()
+              browser.close()
+          Path('evidence/checks.json').write_text(json.dumps(results,indent=2))
+
+      - name: Commit tested application directly to main
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js fa-studio.js fa-studio.css
+          git diff --cached --quiet || git commit -m "Publish studio layout and swipeable Freedom Arkives book gallery"
+          git push origin HEAD:main
+      - name: Package public site
+        run: |
+          mkdir -p /tmp/arkives-site
+          tar --exclude=.git --exclude=.github --exclude=evidence -cf - . | tar -xf - -C /tmp/arkives-site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: /tmp/arkives-site
+      - name: Deploy tested release
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Verify deployed release
+        shell: python
+        run: |
+          import json,time,urllib.request
+          from pathlib import Path
+          results=[]
+          for name in ['fa-studio.js','fa-studio.css','index.html','sw.js']:
+              expected=Path(name).read_bytes()
+              for attempt in range(12):
+                  try:
+                      actual=urllib.request.urlopen('https://pomegranatexlily.github.io/freedom-arkives/'+name+'?studio='+str(time.time_ns()),timeout=30).read()
+                      if actual==expected:break
+                  except Exception:pass
+                  time.sleep(10)
+              else:raise AssertionError('Live release mismatch: '+name)
+              results.append({'asset':name,'live_bytes_match':True})
+          Path('evidence/live-release.json').write_text(json.dumps(results,indent=2))
+      - name: Keep screenshots and test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: freedom-arkives-studio-evidence
+          path: evidence/
+
