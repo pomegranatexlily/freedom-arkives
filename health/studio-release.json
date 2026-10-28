@@ -1,0 +1,22 @@
+{
+  "stage": "browser-tests",
+  "status": "local_checks_passed",
+  "physical_iphone": false,
+  "browser_checks": [
+    {
+      "viewport": 360,
+      "passed": true,
+      "physical_iphone": false
+    },
+    {
+      "viewport": 390,
+      "passed": true,
+      "physical_iphone": false
+    },
+    {
+      "viewport": 1440,
+      "passed": true,
+      "physical_iphone": false
+    }
+  ]
+}

@@ -7,7 +7,7 @@
  * No external (Medium/Google) requests or private visitor data are cached.
  */
 "use strict";
-const VERSION = "fa-offline-f60021908512892d";
+const VERSION = "fa-offline-studio-2bb93e9ea8bba495";
 const HTML_CACHE = VERSION + "-pages";
 const ASSET_CACHE = VERSION + "-assets";
 const ORIGIN = self.location.origin;
@@ -58,7 +58,9 @@ const SHELL_ASSETS = [
   "reader/book-previews.js",
   "reader/reader.css",
   "reader/reader.js",
-  "social-preview.png"
+  "social-preview.png",
+  "fa-studio.js",
+  "fa-studio.css"
 ];
 function urlFor(path) { return new URL(path, BASE).href; }
 function inScope(url) {
