@@ -1,0 +1,208 @@
+{
+  "base": "62828f11d2512961a2e5ec671d0bb09049efdd84",
+  "input_commit": "2f2a74e26284263084dd17abd0fa2bbfb3fb4b6a",
+  "deployed": false,
+  "audible_iphone_verified": false,
+  "checks": [
+    {
+      "name": "syntax reader/reader.js",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "syntax scripts/test_reader_lifecycle.cjs",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "syntax sw.js",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "Parse all tracked JavaScript",
+      "exit_code": 0,
+      "stdout": "Parsed 11 JavaScript files.\n",
+      "stderr": ""
+    },
+    {
+      "name": "Check JSON syntax and first-party browser script paths",
+      "exit_code": 0,
+      "stdout": "Parsed 5 JSON/manifest files and 11 HTML files; checked 18 local scripts.\n",
+      "stderr": ""
+    },
+    {
+      "name": "Verify reader/catalog and private progress behavior",
+      "exit_code": 0,
+      "stdout": "PASS: 16 catalog-backed promotional intros, trusted purchase links, no manuscript excerpts, private position protection, valid JS.\nPASS: header navigation, reader privacy placement, full now-playing titles for all 16 selections.\n",
+      "stderr": ""
+    },
+    {
+      "name": "Verify high-resolution published book covers",
+      "exit_code": 0,
+      "stdout": "PASS: exact catalog high-res image, square layout, book details, cache and all 16 titles\n",
+      "stderr": ""
+    }
+  ],
+  "baseline": {
+    "exit_code": 1,
+    "result": {
+      "reader": "/home/runner/work/_temp/baseline-reader.js",
+      "passed": 5,
+      "failed": 10,
+      "simulated_engine": true,
+      "audible_iphone_verified": false,
+      "cases": [
+        {
+          "name": "Initial user tap queues Samantha without idle cancellation",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n\n1 !== 0\n"
+        },
+        {
+          "name": "Standalone suspension clears stale playing state and checkpoints position",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'playing'\n- 'paused'\n"
+        },
+        {
+          "name": "Foreground recovery never automatically speaks",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'playing'\n- 'paused'\n"
+        },
+        {
+          "name": "Native pause interruption invalidates current utterance",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'playing'\n- 'paused'\n"
+        },
+        {
+          "name": "No cancel and speak in the same cancellation turn",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n\n1 !== 0\n"
+        },
+        {
+          "name": "Pure paused engine resumes without a new cancellation",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n\n2 !== 1\n"
+        },
+        {
+          "name": "Delayed Samantha availability recovers without a voiceschanged event",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n\ntrue !== false\n"
+        },
+        {
+          "name": "Restored page resets stale playback without auto-resuming",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'playing'\n- 'paused'\n"
+        },
+        {
+          "name": "Hidden player does not enqueue speech",
+          "passed": false,
+          "error": "Expected values to be strictly equal:\n\n1 !== 0\n"
+        },
+        {
+          "name": "Preview leaves imported document, position and unrelated bookmarks unchanged",
+          "passed": true
+        },
+        {
+          "name": "Start watchdog and stale callbacks cannot cancel a newer request",
+          "passed": true
+        },
+        {
+          "name": "Speech exceptions recover to a retryable state",
+          "passed": true
+        },
+        {
+          "name": "No alternative voice is substituted",
+          "passed": true
+        },
+        {
+          "name": "Passage continuation keeps the existing automatic reading flow",
+          "passed": true
+        },
+        {
+          "name": "New reader build is inspectable without importing or disclosing text",
+          "passed": false,
+          "error": "Cannot read properties of undefined (reading 'snapshot')"
+        }
+      ]
+    },
+    "stderr": ""
+  },
+  "candidate": {
+    "exit_code": 0,
+    "result": {
+      "reader": "/home/runner/work/freedom-arkives/freedom-arkives/reader/reader.js",
+      "passed": 15,
+      "failed": 0,
+      "simulated_engine": true,
+      "audible_iphone_verified": false,
+      "cases": [
+        {
+          "name": "Initial user tap queues Samantha without idle cancellation",
+          "passed": true
+        },
+        {
+          "name": "Standalone suspension clears stale playing state and checkpoints position",
+          "passed": true
+        },
+        {
+          "name": "Foreground recovery never automatically speaks",
+          "passed": true
+        },
+        {
+          "name": "Native pause interruption invalidates current utterance",
+          "passed": true
+        },
+        {
+          "name": "No cancel and speak in the same cancellation turn",
+          "passed": true
+        },
+        {
+          "name": "Pure paused engine resumes without a new cancellation",
+          "passed": true
+        },
+        {
+          "name": "Delayed Samantha availability recovers without a voiceschanged event",
+          "passed": true
+        },
+        {
+          "name": "Restored page resets stale playback without auto-resuming",
+          "passed": true
+        },
+        {
+          "name": "Hidden player does not enqueue speech",
+          "passed": true
+        },
+        {
+          "name": "Preview leaves imported document, position and unrelated bookmarks unchanged",
+          "passed": true
+        },
+        {
+          "name": "Start watchdog and stale callbacks cannot cancel a newer request",
+          "passed": true
+        },
+        {
+          "name": "Speech exceptions recover to a retryable state",
+          "passed": true
+        },
+        {
+          "name": "No alternative voice is substituted",
+          "passed": true
+        },
+        {
+          "name": "Passage continuation keeps the existing automatic reading flow",
+          "passed": true
+        },
+        {
+          "name": "New reader build is inspectable without importing or disclosing text",
+          "passed": true
+        }
+      ]
+    },
+    "stderr": ""
+  },
+  "passed": true,
+  "code_commit": "5550cd3151d50b0e6b9db1a8837d453ec7fca495"
+}
