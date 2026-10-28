@@ -23,5 +23,12 @@
   "catalog_preserved": true,
   "covers_preserved": true,
   "gallery_logic_preserved": true,
-  "svg_controls": true
+  "svg_controls": true,
+  "outcomes": {
+    "BUILD": "success",
+    "COMMIT": "success",
+    "DEPLOY": "success",
+    "LIVE": "success"
+  },
+  "run_id": "40668358475"
 }
