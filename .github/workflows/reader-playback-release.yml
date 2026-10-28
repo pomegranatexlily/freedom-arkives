@@ -1,0 +1,239 @@
+name: Repair Samantha reader playback
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/reader-playback-release.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: freedom-arkives-publishing
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install browser-test driver
+        run: python -m pip install playwright==1.51.0
+      - name: Repair playback and run regression checks
+        id: build
+        shell: python
+        run: |
+          import hashlib,json,subprocess,traceback
+          from pathlib import Path
+          Path('health').mkdir(exist_ok=True)
+          report={'status':'running','speech_engine_mocked':True,'audible_playback_verified':False}
+          protected=['index.html','fa-studio.js','fa-studio.css','reader/book-previews.js','reader/index.html','reader/reader.css']
+          before={name:hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in protected}
+          try:
+              STOP=r"""function clearSpeechStartTimer(){if(speechStartTimer!==null){clearTimeout(speechStartTimer);speechStartTimer=null;}}
+              function stop(){generation++;clearSpeechStartTimer();starting=false;playing=false;if(supported){try{synth.cancel();}catch(_){}}utterance=null;savePosition();update();}
+              function speechFailed(text){stop();message(text);}
+              """
+              SPEAK=r"""function speakPart(){
+                if(!playing||!parts[index])return;
+                var voice=selectedVoice();if(!isSamantha(voice)){speechFailed("Samantha is unavailable. No other voice will be used.");return;}
+                if(offset>=parts[index].text.length)offset=0;
+                clearSpeechStartTimer();
+                var token=++generation,start=offset,began=false;
+                utterance=new SpeechSynthesisUtterance(parts[index].text.slice(start));
+                utterance.voice=voice;utterance.lang=voice.lang;utterance.rate=Number($("rate").value)||1;utterance.volume=1;
+                starting=true;update();message("Starting Samantha. Waiting for speech to begin.");
+                function started(){if(token!==generation||!playing)return;began=true;starting=false;clearSpeechStartTimer();update();message("Reading aloud with Samantha.");}
+                utterance.onstart=started;
+                utterance.onboundary=function(event){if(token!==generation||!playing)return;if(!began)started();offset=start+(event.charIndex||0);};
+                utterance.onend=function(){
+                  if(token!==generation||!playing)return;clearSpeechStartTimer();
+                  if(!began){speechFailed("Samantha ended the request without confirming playback. Press Play to retry.");return;}
+                  offset=0;
+                  if(index+1<parts.length)index++;
+                  else if(chapter+1<doc.chapters.length)showChapter(chapter+1,0,0);
+                  else{playing=false;starting=false;utterance=null;offset=parts[index].text.length;savePosition();update();message("Reading complete.");return;}
+                  update();savePosition();speakPart();
+                };
+                utterance.onerror=function(event){if(token!==generation)return;speechFailed("Samantha could not play ("+(event.error||"voice unavailable")+"). Press Play to retry.");};
+                speechStartTimer=setTimeout(function(){if(token===generation&&playing&&!began)speechFailed("Samantha did not start. Keep this page open and press Play to retry.");},8000);
+                try{synth.speak(utterance);if(synth.paused)synth.resume();}
+                catch(_){if(token===generation)speechFailed("Samantha could not start. Press Play to retry.");}
+              }
+              """
+              PLAY=r"""function play(){
+                if(!supported||!parts.length)return;loadVoices();
+                if(!selectedVoice()){message("Samantha is unavailable. No other voice will be used.");return;}
+                if(!consentForVoice())return;
+                generation++;clearSpeechStartTimer();starting=false;
+                try{if(synth.speaking||synth.pending||synth.paused)synth.cancel();}
+                catch(_){playing=false;update();message("The speech engine could not reset. Press Play to retry.");return;}
+                playing=true;speakPart();
+              }
+              """
+              import hashlib,re
+              from pathlib import Path
+              p=Path('reader/reader.js');raw=p.read_bytes()
+              assert hashlib.sha1(b'blob '+str(len(raw)).encode()+bytes([0])+raw).hexdigest()=='92a19de584b5694ff24134623ff345a64f64daa8','Reader source changed; stop'
+              text=raw.decode()
+              def once(old,new):
+                  global text
+                  assert text.count(old)==1,'Unexpected reader anchor'
+                  text=text.replace(old,new,1)
+              def block(begin,end,new):
+                  global text
+                  assert text.count(begin)==1 and text.count(end)==1
+                  a=text.index(begin);b=text.index(end,a);text=text[:a]+new+text[b:]
+              once('acceptedVoice=null,previewMode=false;','acceptedVoice=null,previewMode=false;\nvar starting=false,speechStartTimer=null;')
+              block('function stop(){','function showChapter(',STOP)
+              block('function speakPart(){','function play(){',SPEAK)
+              block('function play(){','function seek(',PLAY)
+              once('$("play").dataset.state=playing?"playing":"paused";$("play").setAttribute("aria-label",playing?"Pause reading":"Read aloud");$("play").title=playing?"Pause":"Play";', '$("play").dataset.state=starting?"starting":playing?"playing":"paused";$("play").setAttribute("aria-label",starting?"Cancel speech request":playing?"Pause reading":"Read aloud");$("play").setAttribute("aria-busy",String(starting));$("play").title=starting?"Cancel speech request":playing?"Pause":"Play";')
+              once('window.addEventListener("pagehide",function(){savePosition();if(supported)synth.cancel();});','window.addEventListener("pagehide",function(){stop();});\nwindow.addEventListener("pageshow",function(){loadVoices();update();});')
+              p.write_text(text)
+              p=Path('sw.js');sw=p.read_text();version=hashlib.sha256(text.encode()).hexdigest()[:16]
+              sw,n=re.subn(r'const VERSION = "[^"]+";','const VERSION = "fa-offline-reader-'+version+'";',sw,count=1);assert n==1;p.write_text(sw)
+
+              subprocess.run(['node','--check','reader/reader.js'],check=True)
+              subprocess.run(['node','scripts/test_reader_previews.js'],check=True)
+              MOCK=r"""(()=>{const m={calls:[],cancels:0,pending:false,speaking:false,paused:false,mode:'hold',available:true,listeners:[]};const voice={name:'Samantha',lang:'en-US',voiceURI:'test-samantha',localService:true};m.getVoices=()=>m.available?[voice]:[{name:'Alex',lang:'en-US',voiceURI:'test-alex',localService:true}];m.cancel=()=>{m.cancels++;m.pending=false;m.speaking=false;m.paused=false};m.resume=()=>{m.paused=false};m.speak=u=>{if(m.mode==='throw')throw Error('mock speech failure');m.calls.push(u);m.last=u;m.pending=true};m.addEventListener=(name,fn)=>{if(name==='voiceschanged')m.listeners.push(fn)};m.emitVoices=()=>m.listeners.forEach(fn=>fn());Object.defineProperty(window,'speechSynthesis',{value:m,configurable:true});Object.defineProperty(window,'SpeechSynthesisUtterance',{value:class{constructor(text){this.text=text}},configurable:true});window.__readerSpeech=m;localStorage.setItem('fa.reader.document.v1',JSON.stringify({title:'Private test document',chapters:[{title:'Test',text:'Locally saved test words.'}]}));localStorage.setItem('fa.reader.position.v1',JSON.stringify({chapter:0,index:0,offset:2}));})();"""
+              import json,shutil,threading
+              from http.server import ThreadingHTTPServer,SimpleHTTPRequestHandler
+              from pathlib import Path
+              from playwright.sync_api import sync_playwright
+              threading.Thread(target=ThreadingHTTPServer(('127.0.0.1',8765),SimpleHTTPRequestHandler).serve_forever,daemon=True).start()
+              Path('evidence').mkdir(exist_ok=True);results=[]
+              with sync_playwright() as p:
+                  executable=shutil.which('google-chrome') or shutil.which('chromium');assert executable
+                  browser=p.chromium.launch(executable_path=executable,args=['--no-sandbox'])
+                  for width in [390,1440]:
+                      page=browser.new_page(viewport={'width':width,'height':900},service_workers='block')
+                      page.add_init_script(MOCK)
+                      page.goto('http://127.0.0.1:8765/reader/?sample=oustory-covenant-bible-volume-i',wait_until='networkidle')
+                      page.get_by_role('button',name='Reject optional',exact=True).click()
+                      page.clock.install()
+                      original=page.evaluate("[localStorage.getItem('fa.reader.document.v1'),localStorage.getItem('fa.reader.position.v1')]")
+                      cancel_count_before=page.evaluate('window.__readerSpeech.cancels')
+                      page.locator('#play').click()
+                      assert page.locator('#play').get_attribute('data-state')=='starting'
+                      assert 'Starting Samantha' in page.locator('#status').inner_text()
+                      assert page.evaluate('window.__readerSpeech.cancels')==cancel_count_before,'Do not cancel an idle engine on Play'
+                      page.clock.fast_forward(8100)
+                      assert page.locator('#play').get_attribute('data-state')=='paused'
+                      assert 'did not start' in page.locator('#status').inner_text()
+                      page.locator('#play').click()
+                      page.evaluate('window.__readerSpeech.last.onstart({})')
+                      assert page.locator('#play').get_attribute('data-state')=='playing'
+                      page.locator('#play').click()
+                      page.evaluate('window.__readerSpeech.last.onstart({})')
+                      assert page.locator('#play').get_attribute('data-state')=='paused','Ignore stale events'
+                      page.evaluate("window.__readerSpeech.mode='throw'");page.locator('#play').click()
+                      assert page.locator('#play').get_attribute('data-state')=='paused'
+                      assert 'could not start' in page.locator('#status').inner_text()
+                      page.evaluate("window.__readerSpeech.mode='hold'");page.locator('#play').click()
+                      page.evaluate("window.__readerSpeech.last.onerror({error:'not-allowed'})")
+                      assert 'not-allowed' in page.locator('#status').inner_text()
+                      page.locator('#play').click();page.evaluate('window.__readerSpeech.last.onend({})')
+                      assert 'without confirming playback' in page.locator('#status').inner_text()
+                      entries=page.evaluate('window.FreedomBookPreviews.map(p=>({id:p.id,title:p.title}))')
+                      for entry in entries:
+                          page.locator('#featured-book').select_option(entry['id'])
+                          assert page.locator('#track-title').inner_text()==entry['title']
+                          page.locator('#play').click();page.evaluate('window.__readerSpeech.last.onstart({})')
+                          assert page.locator('#play').get_attribute('data-state')=='playing'
+                          assert page.evaluate('window.__readerSpeech.last.voice.voiceURI')=='test-samantha'
+                          assert page.evaluate('window.__readerSpeech.last.volume')==1
+                          page.locator('#play').click()
+                      assert page.evaluate("[localStorage.getItem('fa.reader.document.v1'),localStorage.getItem('fa.reader.position.v1')]")==original
+                      page.locator('#play').click();page.evaluate("window.dispatchEvent(new Event('pagehide'))")
+                      assert page.locator('#play').get_attribute('data-state')=='paused'
+                      page.evaluate('window.__readerSpeech.available=false;window.__readerSpeech.emitVoices()')
+                      assert page.locator('#play').is_disabled()
+                      assert page.evaluate("window.__readerSpeech.calls.every(u=>u.voice.voiceURI==='test-samantha')")
+                      page.screenshot(path=f'evidence/reader-{width}.png',full_page=True)
+                      results.append({'viewport':width,'passed':True,'introductions_checked':len(entries),'speech_engine_mocked':True,'audible_playback_verified':False})
+                      page.close()
+                  browser.close()
+              Path('evidence/reader-playback-checks.json').write_text(json.dumps(results,indent=2))
+
+              assert all(hashlib.sha256(Path(name).read_bytes()).hexdigest()==value for name,value in before.items())
+              report.update(status='local_checks_passed',design_and_content_preserved=True,browser_checks=json.loads(Path('evidence/reader-playback-checks.json').read_text()))
+          except BaseException:
+              report.update(status='failed',error=traceback.format_exc());raise
+          finally:
+              Path('health/reader-playback-release.json').write_text(json.dumps(report,indent=2))
+
+      - name: Commit tested reader repair
+        id: commit
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reader/reader.js sw.js health/reader-playback-release.json
+          git commit -m "Repair Samantha playback startup, timeout and stale speech states"
+          git push origin HEAD:main
+      - name: Package public application
+        run: |
+          mkdir -p /tmp/arkives-reader
+          tar --exclude=.git --exclude=.github --exclude=evidence -cf - . | tar -xf - -C /tmp/arkives-reader
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: /tmp/arkives-reader
+      - name: Deploy reader repair
+        id: deploy
+        uses: actions/deploy-pages@v4
+      - name: Verify live reader files
+        id: live
+        shell: python
+        run: |
+          import time,urllib.request
+          from pathlib import Path
+          for name in ['reader/reader.js','sw.js']:
+              expected=Path(name).read_bytes()
+              for attempt in range(12):
+                  try:
+                      url='https://pomegranatexlily.github.io/freedom-arkives/'+name+'?reader='+str(time.time_ns())
+                      if urllib.request.urlopen(url,timeout=30).read()==expected:break
+                  except Exception:pass
+                  time.sleep(10)
+              else:raise AssertionError('Live file mismatch: '+name)
+      - name: Record repair outcome
+        if: always()
+        env:
+          BUILD: ${{ steps.build.outcome }}
+          COMMIT: ${{ steps.commit.outcome }}
+          DEPLOY: ${{ steps.deploy.outcome }}
+          LIVE: ${{ steps.live.outcome }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path('health/reader-playback-release.json');p.parent.mkdir(exist_ok=True)
+          report=json.loads(p.read_text()) if p.exists() else {}
+          report['outcomes']={key:os.environ.get(key,'unknown') for key in ['BUILD','COMMIT','DEPLOY','LIVE']}
+          report['run_id']=os.environ['GITHUB_RUN_ID']
+          p.write_text(json.dumps(report,indent=2))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add health/reader-playback-release.json
+          git diff --cached --quiet || git commit -m "Record reader playback repair outcome"
+          git push origin HEAD:main
+      - name: Keep test results and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: freedom-arkives-reader-playback-evidence
+          path: |
+            evidence/
+            health/reader-playback-release.json
