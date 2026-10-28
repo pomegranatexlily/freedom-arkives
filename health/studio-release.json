@@ -18,5 +18,12 @@
       "passed": true,
       "physical_iphone": false
     }
-  ]
+  ],
+  "outcomes": {
+    "BUILD": "success",
+    "COMMIT": "success",
+    "DEPLOY": "success",
+    "LIVE": "success"
+  },
+  "run_id": "40661914645"
 }
