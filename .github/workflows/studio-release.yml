@@ -1,0 +1,132 @@
+name: Publish Freedom Arkives studio release
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/studio-release.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: freedom-arkives-publishing
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test dependencies
+        run: python -m pip install PyYAML==6.0.2 playwright==1.51.0
+      - name: Build and test the actual application
+        id: build
+        shell: python
+        run: |
+          import json,re,subprocess,traceback,yaml
+          from pathlib import Path
+          Path('health').mkdir(exist_ok=True)
+          report={'stage':'source','status':'running','physical_iphone':False}
+          try:
+              source=subprocess.check_output(['git','show','e4fa4850b60257d347e2e8bf0d3dc57ce9c5f79a:.github/workflows/studio-gallery.yml'],text=True)
+              steps=yaml.load(source,Loader=yaml.BaseLoader)['jobs']['publish']['steps']
+              build=next(s['run'] for s in steps if s.get('name')=='Build the gallery using the pinned studio background')
+              tests=next(s['run'] for s in steps if s.get('name')=='Execute browser checks and capture screenshots')
+              old="page.goto('http://127.0.0.1:8765/',wait_until='networkidle');page.wait_for_selector('.fa-showcase');assert page.locator('.pom-spatial-bg').count()==1"
+              assert tests.count(old)==1,'Unexpected test source'
+              indent=re.search(r'(?m)^( +)page.goto',tests).group(1)
+              fixed=('\n'+indent).join(["page.goto('http://127.0.0.1:8765/',wait_until='networkidle')","page.get_by_role('button',name='Reject optional',exact=True).click()","page.locator('.fa-privacy-shade').wait_for(state='detached')","assert page.evaluate(\"JSON.parse(localStorage.getItem('fa.privacy.v1')).externalMedia===false\")","page.wait_for_selector('.fa-showcase');assert page.locator('.pom-spatial-bg').count()==1"])
+              tests=tests.replace(old,fixed,1)
+              compile(build,'approved-build','exec');compile(tests,'privacy-aware-tests','exec')
+              report['stage']='build'
+              exec(compile(build,'approved-build','exec'),{'__name__':'__main__'})
+              subprocess.run(['node','--check','fa-studio.js'],check=True)
+              subprocess.run(['node','--check','sw.js'],check=True)
+              report['stage']='browser-tests'
+              namespace={'__name__':'__main__'}
+              exec(compile(tests,'privacy-aware-tests','exec'),namespace)
+              report.update(status='local_checks_passed',browser_checks=namespace['results'])
+          except BaseException:
+              report.update(status='failed',error=traceback.format_exc())
+              raise
+          finally:
+              Path('health/studio-release.json').write_text(json.dumps(report,indent=2))
+      - name: Commit tested application files
+        id: commit
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js fa-studio.js fa-studio.css health/studio-release.json
+          git diff --cached --quiet || git commit -m "Release tested spatial Freedom Arkives application"
+          git push origin HEAD:main
+      - name: Package public application
+        run: |
+          mkdir -p /tmp/arkives-release
+          tar --exclude=.git --exclude=.github --exclude=evidence -cf - . | tar -xf - -C /tmp/arkives-release
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: /tmp/arkives-release
+      - name: Deploy application
+        id: deploy
+        uses: actions/deploy-pages@v4
+      - name: Verify live application bytes
+        id: live
+        shell: python
+        run: |
+          import json,time,urllib.request
+          from pathlib import Path
+          results=[]
+          for name in ['fa-studio.js','fa-studio.css','index.html','sw.js']:
+              expected=Path(name).read_bytes()
+              for attempt in range(12):
+                  try:
+                      url='https://pomegranatexlily.github.io/freedom-arkives/'+name+'?release='+str(time.time_ns())
+                      actual=urllib.request.urlopen(url,timeout=30).read()
+                      if actual==expected:break
+                  except Exception:pass
+                  time.sleep(10)
+              else:raise AssertionError('Live release mismatch: '+name)
+              results.append({'asset':name,'live_bytes_match':True})
+          Path('evidence/live-release.json').write_text(json.dumps(results,indent=2))
+      - name: Record release outcome without altering app files
+        if: always()
+        env:
+          BUILD: ${{ steps.build.outcome }}
+          COMMIT: ${{ steps.commit.outcome }}
+          DEPLOY: ${{ steps.deploy.outcome }}
+          LIVE: ${{ steps.live.outcome }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path('health/studio-release.json');p.parent.mkdir(exist_ok=True)
+          report=json.loads(p.read_text()) if p.exists() else {}
+          report['outcomes']={key:os.environ.get(key,'unknown') for key in ['BUILD','COMMIT','DEPLOY','LIVE']}
+          report['run_id']=os.environ['GITHUB_RUN_ID']
+          p.write_text(json.dumps(report,indent=2))
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add health/studio-release.json
+          git diff --cached --quiet || git commit -m "Record studio release outcome"
+          git push origin HEAD:main
+      - name: Retain browser screenshots and test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: freedom-arkives-studio-release-evidence
+          path: |
+            evidence/
+            health/studio-release.json
