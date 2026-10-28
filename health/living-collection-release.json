@@ -1,0 +1,27 @@
+{
+  "stage": "browser-tests",
+  "status": "local_checks_passed",
+  "physical_iphone": false,
+  "design": "living-collection-v1",
+  "browser_checks": [
+    {
+      "viewport": 360,
+      "passed": true,
+      "physical_iphone": false
+    },
+    {
+      "viewport": 390,
+      "passed": true,
+      "physical_iphone": false
+    },
+    {
+      "viewport": 1440,
+      "passed": true,
+      "physical_iphone": false
+    }
+  ],
+  "catalog_preserved": true,
+  "covers_preserved": true,
+  "gallery_logic_preserved": true,
+  "svg_controls": true
+}
