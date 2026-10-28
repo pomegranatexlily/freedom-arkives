@@ -1,0 +1,145 @@
+{
+  "source_snapshot": "e958bad629bb253611a9ff157ad0213679887a96",
+  "repair_commit": "5550cd3151d50b0e6b9db1a8837d453ec7fca495",
+  "reader_build": "reader-lifecycle-20261028-r1",
+  "repair_merged_into_main": false,
+  "audible_iphone_verified": false,
+  "checks": [
+    {
+      "name": "Parse all tracked JavaScript",
+      "exit_code": 0,
+      "stdout": "Parsed 12 JavaScript files.\n",
+      "stderr": ""
+    },
+    {
+      "name": "Check JSON syntax and first-party browser script paths",
+      "exit_code": 0,
+      "stdout": "Parsed 6 JSON/manifest files and 11 HTML files; checked 18 local scripts.\n",
+      "stderr": ""
+    },
+    {
+      "name": "Verify reader/catalog and private progress behavior",
+      "exit_code": 0,
+      "stdout": "PASS: 16 catalog-backed promotional intros, trusted purchase links, no manuscript excerpts, private position protection, valid JS.\nPASS: header navigation, reader privacy placement, full now-playing titles for all 16 selections.\n",
+      "stderr": ""
+    },
+    {
+      "name": "Verify high-resolution published book covers",
+      "exit_code": 0,
+      "stdout": "PASS: exact catalog high-res image, square layout, book details, cache and all 16 titles\n",
+      "stderr": ""
+    }
+  ],
+  "lifecycle": {
+    "exit_code": 0,
+    "result": {
+      "reader": "/home/runner/work/freedom-arkives/freedom-arkives/device-source/reader/reader.js",
+      "passed": 15,
+      "failed": 0,
+      "simulated_engine": true,
+      "audible_iphone_verified": false,
+      "cases": [
+        {
+          "name": "Initial user tap queues Samantha without idle cancellation",
+          "passed": true
+        },
+        {
+          "name": "Standalone suspension clears stale playing state and checkpoints position",
+          "passed": true
+        },
+        {
+          "name": "Foreground recovery never automatically speaks",
+          "passed": true
+        },
+        {
+          "name": "Native pause interruption invalidates current utterance",
+          "passed": true
+        },
+        {
+          "name": "No cancel and speak in the same cancellation turn",
+          "passed": true
+        },
+        {
+          "name": "Pure paused engine resumes without a new cancellation",
+          "passed": true
+        },
+        {
+          "name": "Delayed Samantha availability recovers without a voiceschanged event",
+          "passed": true
+        },
+        {
+          "name": "Restored page resets stale playback without auto-resuming",
+          "passed": true
+        },
+        {
+          "name": "Hidden player does not enqueue speech",
+          "passed": true
+        },
+        {
+          "name": "Preview leaves imported document, position and unrelated bookmarks unchanged",
+          "passed": true
+        },
+        {
+          "name": "Start watchdog and stale callbacks cannot cancel a newer request",
+          "passed": true
+        },
+        {
+          "name": "Speech exceptions recover to a retryable state",
+          "passed": true
+        },
+        {
+          "name": "No alternative voice is substituted",
+          "passed": true
+        },
+        {
+          "name": "Passage continuation keeps the existing automatic reading flow",
+          "passed": true
+        },
+        {
+          "name": "New reader build is inspectable without importing or disclosing text",
+          "passed": true
+        }
+      ]
+    },
+    "stderr": ""
+  },
+  "checks_passed": true,
+  "live_files": [
+    {
+      "path": "reader/reader.js",
+      "matches_snapshot": true
+    },
+    {
+      "path": "sw.js",
+      "matches_snapshot": true
+    },
+    {
+      "path": "reader/index.html",
+      "matches_snapshot": true
+    },
+    {
+      "path": "index.html",
+      "matches_snapshot": true
+    },
+    {
+      "path": "fa-studio.js",
+      "matches_snapshot": true
+    },
+    {
+      "path": "fa-studio.css",
+      "matches_snapshot": true
+    },
+    {
+      "path": "manifest.webmanifest",
+      "matches_snapshot": true
+    }
+  ],
+  "outcomes": {
+    "CHECKS": "success",
+    "DEPLOY": "success",
+    "LIVE": "success"
+  },
+  "page_url": "https://pomegranatexlily.github.io/freedom-arkives/",
+  "run_id": "40688253071",
+  "deployed": true
+}
