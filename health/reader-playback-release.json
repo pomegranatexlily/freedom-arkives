@@ -18,5 +18,12 @@
       "speech_engine_mocked": true,
       "audible_playback_verified": false
     }
-  ]
+  ],
+  "outcomes": {
+    "BUILD": "success",
+    "COMMIT": "success",
+    "DEPLOY": "success",
+    "LIVE": "success"
+  },
+  "run_id": "40678398849"
 }
