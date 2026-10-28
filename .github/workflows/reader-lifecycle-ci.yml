@@ -1,0 +1,207 @@
+name: Verify and commit standalone reader repair
+on:
+  push:
+    branches: [fix/reader-standalone-lifecycle-20261028]
+    paths: [.github/workflows/reader-lifecycle-ci.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: reader-standalone-engineering
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/reader-standalone-lifecycle-20261028
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install PyYAML==6.0.2
+      - name: Apply exact tested patch, execute full suite, commit branch evidence
+        shell: python
+        run: |
+          NEW_STOP=r"""function stop(){
+            var cancelNeeded=supported&&!!(utterance||playing||starting||synth.speaking||synth.pending);
+            generation++;clearSpeechStartTimer();starting=false;playing=false;
+            if(cancelNeeded){
+              cancelBarrier=true;if(cancelReleaseTimer!==null)clearTimeout(cancelReleaseTimer);
+              try{synth.cancel();}catch(_){}
+              cancelReleaseTimer=setTimeout(function(){cancelBarrier=false;cancelReleaseTimer=null;},0);
+            }
+            utterance=null;savePosition();update();
+          }
+          """
+          NEW_PLAY=r"""function play(){
+            if(!supported||!parts.length||document.hidden)return;
+            loadVoices();if(!selectedVoice()){message("Samantha is unavailable. No other voice will be used.");return;}
+            if(!consentForVoice())return;
+            if(cancelBarrier){message("Speech is resetting. Tap Play again to continue with Samantha.");return;}
+            if(synth.speaking||synth.pending){stop();message("Speech engine reset. Tap Play again to start Samantha.");return;}
+            generation++;clearSpeechStartTimer();starting=false;
+            try{if(synth.paused)synth.resume();}catch(_){message("Samantha could not resume. Tap Play to retry.");return;}
+            playing=true;speakPart();
+          }
+          """
+          LIFECYCLE=r"""var READER_BUILD="reader-lifecycle-20261028-r1",voiceRefreshTimers=[],lastLifecycle="loaded";
+          function clearVoiceRefresh(){voiceRefreshTimers.forEach(clearTimeout);voiceRefreshTimers=[];}
+          function refreshReaderVoices(){
+            clearVoiceRefresh();if(document.hidden)return;
+            loadVoices();[150,600,1500].forEach(function(delay){voiceRefreshTimers.push(setTimeout(function(){if(!document.hidden&&!playing)loadVoices();},delay));});
+          }
+          function pauseForLifecycle(reason){
+            var active=playing||starting;lastLifecycle=reason;clearVoiceRefresh();stop();
+            if(active)message("Reading paused while the app was interrupted. Tap Play to continue with Samantha.");
+          }
+          window.addEventListener("pagehide",function(){pauseForLifecycle("pagehide");});
+          window.addEventListener("pageshow",function(event){if(event.persisted)pauseForLifecycle("restored");refreshReaderVoices();update();});
+          document.addEventListener("visibilitychange",function(){
+            if(document.hidden)pauseForLifecycle("hidden");
+            else{pauseForLifecycle("foreground");refreshReaderVoices();}
+          });
+          window.addEventListener("focus",function(){if(!playing&&!document.hidden)refreshReaderVoices();});
+          document.documentElement.dataset.readerBuild=READER_BUILD;
+          var readerBuildLabel=document.createElement("small");readerBuildLabel.id="reader-build";readerBuildLabel.className="note wide";
+          var installed=!!(window.navigator&&window.navigator.standalone)||(!!window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches);
+          readerBuildLabel.textContent="Reader build: "+READER_BUILD+" ("+(installed?"installed app":"browser")+")";
+          var settingsBody=$("reader-settings").querySelector(".panel-body");if(settingsBody)settingsBody.appendChild(readerBuildLabel);
+          window.FreedomReaderDiagnostics=Object.freeze({snapshot:function(){var v=selectedVoice();return {build:READER_BUILD,installed:installed,visibility:document.hidden?"hidden":"visible",lifecycle:lastLifecycle,state:starting?"starting":playing?"playing":"paused",cancelBarrier:cancelBarrier,voice:v?{name:v.name,lang:v.lang,uri:v.voiceURI,local:v.localService}:null,engine:supported?{speaking:!!synth.speaking,pending:!!synth.pending,paused:!!synth.paused}:null};}});
+          refreshReaderVoices();
+          """
+          TEST_SOURCE=r""""use strict";
+          const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
+          const filename=path.resolve(process.argv[2]||path.join(__dirname,'../reader/reader.js')),code=fs.readFileSync(filename,'utf8');
+          function setup(options={}){
+           const elements=new Map(),events={},devents={},timers=new Map();let now=0,serial=0,gesture=false;
+           class Element{constructor(tag='div'){this.tagName=tag.toUpperCase();this.children=[];this.events={};this.dataset={};this.attrs={};this.value='';this.hidden=false;this.disabled=false;this.textContent='';this.classList={add(){},remove(){}};this.style={setProperty(){}};}appendChild(n){this.children.push(n);if(this.tagName==='SELECT'&&!this.value)this.value=n.value;return n;}replaceChildren(...n){this.children=n;}setAttribute(k,v){this.attrs[k]=v;}querySelector(){return new Element();}addEventListener(k,f){(this.events[k]??=[]).push(f);}focus(){}scrollIntoView(){}fire(k){if(k==='click'&&this.disabled)return;gesture=true;try{(this.events[k]||[]).forEach(f=>f.call(this,{target:this}));}finally{gesture=false;}}}
+           const ids=['status','play','previous','next','save','return-saved','seek','position','voice','rate','font-size','chapter','chapter-label','document-title','track-title','reading-text','import-panel','featured-book','featured-preview-title','featured-preview-description','preview-purchase','preview-details','load-sample','open-settings','reader-settings','load-text','input-text','input-title','file','forget'];
+           ids.forEach(id=>elements.set(id,new Element(['voice','rate','chapter','featured-book'].includes(id)?'select':'div')));elements.get('rate').value='1';elements.get('font-size').value='20';
+           const document={hidden:false,documentElement:new Element(),getElementById:id=>elements.get(id)||null,createElement:t=>new Element(t),addEventListener:(k,f)=>(devents[k]??=[]).push(f)};
+           const sam={name:'Samantha',lang:'en-US',voiceURI:'sam',localService:true},alex={name:'Alex',lang:'en-US',voiceURI:'alex',localService:true};
+           const setTimeout=(fn,delay)=>{const id=++serial;timers.set(id,{fn,time:now+(Number(delay)||0)});return id;},clearTimeout=id=>timers.delete(id);
+           function advance(ms){const end=now+ms;let guard=0;while(true){const next=[...timers].filter(([,t])=>t.time<=end).sort((a,b)=>a[1].time-b[1].time)[0];if(!next)break;if(++guard>1000)throw Error('timer loop');now=next[1].time;timers.delete(next[0]);next[1].fn();}now=end;}
+           const engine={available:options.available!==false,speaking:false,pending:false,paused:false,cancels:0,calls:[],queue:[],listeners:{},mode:'hold',getVoices(){return this.available?[sam,alex]:[alex]},addEventListener(k,f){(this.listeners[k]??=[]).push(f)},cancel(){this.cancels++;const reset=()=>{this.queue=[];this.speaking=false;this.pending=false};if(options.delayedCancel)setTimeout(reset,0);else reset()},resume(){this.paused=false},speak(u){if(this.mode==='throw')throw Error('engine failure');this.calls.push({u,gesture});this.last=u;this.queue.push(u);this.pending=true},start(){const u=this.queue[0];assert(u,'No queued utterance');this.pending=false;this.speaking=true;u.onstart?.({});},suspend(){this.queue=[];this.pending=false;this.speaking=false}};
+           const imported={title:'Local document',chapters:[{title:'One',text:'A private local sentence to test progress. '.repeat(20)}]},position={chapter:0,index:0,offset:5};
+           const store=new Map([['fa.reader.document.v1',JSON.stringify(imported)],['fa.reader.position.v1',JSON.stringify(position)],['unrelated.bookmarks',JSON.stringify(['keep'])]]);
+           const storage={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,v),removeItem:k=>store.delete(k)};
+           const previews=[{id:'sample',title:'Sample',text:'A public introduction for a test.',source:'catalog-themed introduction',purchaseUrl:'https://example.org',purchaseFormat:'Paperback'}];
+           const window={speechSynthesis:engine,SpeechSynthesisUtterance:class{constructor(text){this.text=text}},FreedomBookPreviews:previews,location:{search:options.preview?'?sample=sample':''},navigator:{standalone:!!options.standalone},matchMedia:()=>({matches:!!options.standalone}),confirm:()=>true,addEventListener:(k,f)=>(events[k]??=[]).push(f)};
+           const context={window,document,localStorage:storage,SpeechSynthesisUtterance:window.SpeechSynthesisUtterance,URLSearchParams,setTimeout,clearTimeout,console};vm.runInNewContext(code,context,{filename});
+           return {get:id=>elements.get(id),engine,store,advance,window,document,fire:(k,event={})=>(events[k]||[]).forEach(f=>f(event)),visibility:hidden=>{document.hidden=hidden;(devents.visibilitychange||[]).forEach(f=>f());}};
+          }
+          const cases=[];
+          function test(name,fn){try{fn();cases.push({name,passed:true});}catch(e){cases.push({name,passed:false,error:e.message});}}
+          test('Initial user tap queues Samantha without idle cancellation',()=>{const s=setup();assert.equal(s.engine.cancels,0);s.get('play').fire('click');assert.equal(s.engine.calls.length,1);assert.equal(s.engine.calls[0].gesture,true);assert.equal(s.engine.last.voice.name,'Samantha');assert.equal(s.get('play').dataset.state,'starting');});
+          test('Standalone suspension clears stale playing state and checkpoints position',()=>{const s=setup({standalone:true});s.advance(0);s.get('play').fire('click');s.engine.start();s.engine.last.onboundary({charIndex:7});s.engine.suspend();s.visibility(true);assert.equal(s.get('play').dataset.state,'paused');assert.equal(JSON.parse(s.store.get('fa.reader.position.v1')).offset,12);s.visibility(false);s.advance(0);const n=s.engine.calls.length;s.get('play').fire('click');assert.equal(s.engine.calls.length,n+1);});
+          test('Foreground recovery never automatically speaks',()=>{const s=setup({standalone:true});s.advance(0);s.get('play').fire('click');s.engine.start();s.visibility(true);const n=s.engine.calls.length;s.visibility(false);s.advance(2000);assert.equal(s.engine.calls.length,n);assert.equal(s.get('play').dataset.state,'paused');});
+          test('Native pause interruption invalidates current utterance',()=>{const s=setup();s.advance(0);s.get('play').fire('click');s.engine.start();const old=s.engine.last;old.onpause?.({});assert.equal(s.get('play').dataset.state,'paused');old.onstart({});assert.equal(s.get('play').dataset.state,'paused');});
+          test('No cancel and speak in the same cancellation turn',()=>{const s=setup({delayedCancel:true});s.advance(0);s.engine.pending=true;const n=s.engine.calls.length;s.get('play').fire('click');assert.equal(s.engine.calls.length,n);s.advance(0);s.get('play').fire('click');assert.equal(s.engine.calls.length,n+1);s.advance(0);assert.equal(s.engine.queue.length,1);});
+          test('Pure paused engine resumes without a new cancellation',()=>{const s=setup();s.advance(0);s.engine.paused=true;const n=s.engine.cancels;s.get('play').fire('click');assert.equal(s.engine.cancels,n);assert.equal(s.engine.paused,false);assert.equal(s.engine.calls.length,1);});
+          test('Delayed Samantha availability recovers without a voiceschanged event',()=>{const s=setup({available:false,standalone:true});assert.equal(s.get('play').disabled,true);s.engine.available=true;s.advance(700);assert.equal(s.get('play').disabled,false);});
+          test('Restored page resets stale playback without auto-resuming',()=>{const s=setup();s.advance(0);s.get('play').fire('click');s.engine.start();s.engine.suspend();const n=s.engine.calls.length;s.fire('pageshow',{persisted:true});s.advance(0);assert.equal(s.get('play').dataset.state,'paused');assert.equal(s.engine.calls.length,n);});
+          test('Hidden player does not enqueue speech',()=>{const s=setup();s.advance(0);s.visibility(true);s.advance(0);s.get('play').fire('click');assert.equal(s.engine.calls.length,0);});
+          test('Preview leaves imported document, position and unrelated bookmarks unchanged',()=>{const s=setup({preview:true});const before=[...s.store];s.visibility(true);s.visibility(false);s.advance(1600);assert.deepEqual([...s.store],before);});
+          test('Start watchdog and stale callbacks cannot cancel a newer request',()=>{const s=setup();s.advance(0);s.get('play').fire('click');const old=s.engine.last;s.visibility(true);s.advance(9000);s.visibility(false);s.advance(0);s.get('play').fire('click');old.onend({});assert.equal(s.get('play').dataset.state,'starting');s.engine.start();assert.equal(s.get('play').dataset.state,'playing');});
+          test('Speech exceptions recover to a retryable state',()=>{const s=setup();s.advance(0);s.engine.mode='throw';s.get('play').fire('click');assert.equal(s.get('play').dataset.state,'paused');});
+          test('No alternative voice is substituted',()=>{const s=setup({available:false});s.get('play').fire('click');assert.equal(s.engine.calls.length,0);});
+          test('Passage continuation keeps the existing automatic reading flow',()=>{const s=setup();s.advance(0);s.get('play').fire('click');s.engine.start();const n=s.engine.calls.length;s.engine.last.onend({});assert.equal(s.engine.calls.length,n+1);assert.equal(s.engine.last.voice.name,'Samantha');});
+          test('New reader build is inspectable without importing or disclosing text',()=>{const s=setup({standalone:true});const info=s.window.FreedomReaderDiagnostics.snapshot();assert.equal(info.build,'reader-lifecycle-20261028-r1');assert.equal(info.installed,true);assert(!JSON.stringify(info).includes('private local'));});
+          console.log(JSON.stringify({reader:filename,passed:cases.filter(c=>c.passed).length,failed:cases.filter(c=>!c.passed).length,simulated_engine:true,audible_iphone_verified:false,cases},null,2));if(cases.some(c=>!c.passed))process.exitCode=1;
+          """
+          NOTES=r"""# Installed reader lifecycle candidate
+          Base: 62828f11d2512961a2e5ec671d0bb09049efdd84
+          Build: reader-lifecycle-20261028-r1
+
+          Reproduced code defects: stale playing state after visibility-only suspension,
+          unhandled native pause/persisted restoration, idle cancellation, same-turn cancel/speak,
+          and missing bounded voice-readiness retry. These do not prove the sole cause of actual
+          iPhone silence. The job runs existing code-integrity commands and all 15 regressions;
+          actual output, code commit SHA and baseline comparison are in reader-lifecycle-ci.json.
+
+          The patch checkpoints/resets interrupted speech, invalidates callbacks, retries Samantha
+          availability and waits for a new gesture after required cancellation. A reset during
+          seek/rate changes may require another Play tap. Automatic passage continuation stays.
+          Samantha-only selection, storage keys, imported text, position and bookmarks remain.
+          A build label and text-free snapshot identify the running code. No new audio APIs.
+          Manifest/worker scope and network-first policy are unchanged; only cache version changes.
+          No evidence identifies caching as the cause. No user storage is cleared.
+
+          This branch is not deployed and audible iPhone acceptance is not verified. After reviewed
+          deployment, reopen the existing installed app online, confirm the build label, audibly
+          play imported text and an introduction, background/reopen and tap Play to verify audible
+          continuation and position. Do not reinstall or delete storage. Safari-only success fails
+          acceptance. Simulated speech tests do not prove real sound.
+          """
+          PATCH=r'''from pathlib import Path
+          import hashlib,re
+          p=Path('reader/reader.js');raw=p.read_bytes()
+          assert hashlib.sha1(b'blob '+str(len(raw)).encode()+bytes([0])+raw).hexdigest()=='e947201b2128835847fa6e480a6051f5728dc770','Reader changed since inspection'
+          text=raw.decode()
+          text=text.replace('var starting=false,speechStartTimer=null;','var starting=false,speechStartTimer=null,cancelBarrier=false,cancelReleaseTimer=null;',1)
+          a=text.index('function stop(){');b=text.index('function speechFailed(',a);text=text[:a]+NEW_STOP+text[b:]
+          a=text.index('function play(){');b=text.index('function seek(',a);text=text[:a]+NEW_PLAY+text[b:]
+          needle='utterance.onstart=started;';assert text.count(needle)==1
+          text=text.replace(needle,needle+'\n      utterance.onpause=function(){if(token===generation&&playing){stop();message("Samantha was interrupted. Tap Play to continue.");}};',1)
+          needle='window.addEventListener("pagehide",function(){stop();});\nwindow.addEventListener("pageshow",function(){loadVoices();update();});';assert text.count(needle)==1
+          text=text.replace(needle,LIFECYCLE,1)
+          assert hashlib.sha1(b'blob '+str(len(text.encode())).encode()+bytes([0])+text.encode()).hexdigest()=='7094077b1c0e6c1eb7fcf1b90c18667562c249f9','Prepared patch differs from locally tested candidate'
+          p.write_text(text)
+          p=Path('sw.js');sw=p.read_text();sw,n=re.subn(r'const VERSION = "[^"]+";','const VERSION = "fa-offline-lifecycle-'+hashlib.sha256(text.encode()).hexdigest()[:16]+'";',sw,count=1);assert n==1;p.write_text(sw)
+          '''
+          import json,os,subprocess,hashlib,yaml
+          from pathlib import Path
+          base='62828f11d2512961a2e5ec671d0bb09049efdd84'
+          report={'base':base,'input_commit':os.environ['GITHUB_SHA'],'deployed':False,'audible_iphone_verified':False,'checks':[]}
+          Path('docs').mkdir(exist_ok=True)
+          try:
+              protected=['index.html','fa-studio.js','fa-studio.css','reader/index.html','reader/reader.css','reader/book-previews.js','manifest.webmanifest','offline-register.js']
+              before={name:hashlib.sha256(Path(name).read_bytes()).hexdigest() for name in protected}
+              exec(compile(PATCH,'prepared-reader-patch','exec'),{'NEW_STOP':NEW_STOP,'NEW_PLAY':NEW_PLAY,'LIFECYCLE':LIFECYCLE})
+              Path('scripts/test_reader_lifecycle.cjs').write_text(TEST_SOURCE)
+              Path('docs/reader-lifecycle-investigation.md').write_text(NOTES)
+              for name in ['reader/reader.js','scripts/test_reader_lifecycle.cjs','sw.js']:
+                  r=subprocess.run(['node','--check',name],capture_output=True,text=True)
+                  report['checks'].append({'name':'syntax '+name,'exit_code':r.returncode,'stdout':r.stdout,'stderr':r.stderr})
+              config=yaml.load(subprocess.check_output(['git','show',base+':.github/workflows/code-integrity.yml'],text=True),Loader=yaml.BaseLoader)
+              for step in config['jobs']['verify']['steps']:
+                  if 'run' not in step:continue
+                  r=subprocess.run(step['run'],shell=True,executable='/bin/bash',capture_output=True,text=True,timeout=180)
+                  report['checks'].append({'name':step['name'],'exit_code':r.returncode,'stdout':r.stdout[-12000:],'stderr':r.stderr[-5000:]})
+              baseline=Path(os.environ['RUNNER_TEMP'])/'baseline-reader.js'
+              baseline.write_bytes(subprocess.check_output(['git','show',base+':reader/reader.js']))
+              for label,filename in [('baseline',str(baseline)),('candidate','reader/reader.js')]:
+                  r=subprocess.run(['node','scripts/test_reader_lifecycle.cjs',filename],capture_output=True,text=True,timeout=60)
+                  report[label]={'exit_code':r.returncode,'result':json.loads(r.stdout),'stderr':r.stderr[-3000:]}
+              assert all(hashlib.sha256(Path(name).read_bytes()).hexdigest()==digest for name,digest in before.items()),'Protected files changed'
+              report['passed']=all(c['exit_code']==0 for c in report['checks']) and report['candidate']['exit_code']==0 and report['baseline']['exit_code']!=0
+              if not report['passed']:raise RuntimeError('Tests failed; candidate code will not be committed')
+              subprocess.run(['git','config','user.name','github-actions[bot]'],check=True)
+              subprocess.run(['git','config','user.email','github-actions[bot]@users.noreply.github.com'],check=True)
+              subprocess.run(['git','add','reader/reader.js','sw.js','scripts/test_reader_lifecycle.cjs','docs/reader-lifecycle-investigation.md'],check=True)
+              subprocess.run(['git','commit','-m','Fix reader suspension and cancellation lifecycle [skip ci]'],check=True)
+              subprocess.run(['git','push','origin','HEAD:fix/reader-standalone-lifecycle-20261028'],check=True)
+              report['code_commit']=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+          except Exception as e:
+              report['passed']=False;report['error']=str(e)
+          finally:
+              Path('docs/reader-lifecycle-ci.json').write_text(json.dumps(report,indent=2))
+              subprocess.run(['git','config','user.name','github-actions[bot]'],check=True)
+              subprocess.run(['git','config','user.email','github-actions[bot]@users.noreply.github.com'],check=True)
+              subprocess.run(['git','reset'],check=True)
+              subprocess.run(['git','add','docs/reader-lifecycle-ci.json'],check=True)
+              subprocess.run(['git','commit','-m','Record reader lifecycle engineering evidence [skip ci]'],check=True)
+              subprocess.run(['git','push','origin','HEAD:fix/reader-standalone-lifecycle-20261028'],check=True)
+          if not report.get('passed'):raise SystemExit(1)
+      - name: Retain investigation results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reader-standalone-investigation
+          path: docs/reader-lifecycle-ci.json
