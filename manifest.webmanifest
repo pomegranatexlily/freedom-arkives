@@ -7,7 +7,12 @@
   "background_color": "#0d1d16",
   "theme_color": "#0d1d16",
   "icons": [
-    {
+{
+"src": "./assets/open-record.svg",
+"sizes": "any",
+"type": "image/svg+xml"
+    },
+{
       "src": "./favicon-32.png?v=arkives-poster-20261017",
       "sizes": "32x32",
       "type": "image/png"
